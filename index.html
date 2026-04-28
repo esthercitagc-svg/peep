@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Peep</title>
+    
+    <!-- Iconos para pantalla de inicio -->
+    <link rel="apple-touch-icon" href="peep-app-icon.png">
+    <link rel="icon" type="image/png" href="peep-app-icon.png">
+    <link rel="shortcut icon" href="peep-app-icon.png">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Peep">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0d0d0d">
+    
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d0d0d; --accent: #c9a84c; --text: #ffffff; --dim: #666;
+            --card: #1a1a1a; --panel-bg: #000; --yellow-icon: #f5c518;
+            --danger: #ff3b30; --success: #34c759; --info: #007aff;
+            --font-menu: 'Inter', sans-serif;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); font-family: 'Lato', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
+        .app-container { max-width: 450px; margin: auto; height: 100vh; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+
+        .header { text-align: center; padding: 20px 0 10px; flex-shrink: 0; }
+        .logo { height: 35px; }
+
+        .toolbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; border-bottom: 1px solid #222; flex-shrink: 0; }
+        .tabs { display: flex; gap: 15px; }
+        .tab { background: none; border: none; color: var(--dim); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; }
+        .tab.active { color: var(--text); }
+        .actions { display: flex; gap: 18px; align-items: center; }
+        .icon-btn { background: none; border: none; color: var(--dim); cursor: pointer; padding: 0; display: flex; align-items: center; }
+        .icon-btn.active { color: var(--accent); }
+        .sort-icon { display: flex; gap: 1px; font-size: 16px; font-weight: 700; letter-spacing: -1.5px; }
+
+        .panel { padding: 12px 20px; border-bottom: 1px solid #222; display: flex; gap: 10px; overflow-x: auto; background: var(--bg); scrollbar-width: none; flex-shrink: 0; }
+        .pill { padding: 6px 12px; border: 1px solid #333; border-radius: 2px; font-size: 8px; font-weight: 700; color: var(--dim); white-space: nowrap; text-transform: uppercase; cursor: pointer; }
+        .pill.active { border-color: var(--text); color: var(--text); background: #222; }
+
+        /* SEARCH HEADER con botón + dentro */
+        .search-header { padding: 15px 20px; flex-shrink: 0; }
+        .search-bar { background: #1a1a1a; border-radius: 8px; display: flex; align-items: center; padding: 12px 16px; gap: 12px; }
+        .search-bar input { background: none; border: none; color: white; flex: 1; outline: none; font-size: 16px; }
+        .search-bar input::placeholder { color: #444; }
+        .search-add-btn { background: none; border: none; color: var(--accent); cursor: pointer; padding: 0; display: flex; align-items: center; font-size: 22px; font-weight: 700; }
+        .search-add-btn i { font-size: 22px; }
+
+        /* CONTENT - SCROLL FIXED */
+        .content { flex: 1; overflow-y: auto; padding: 10px 20px 100px; -webkit-overflow-scrolling: touch; }
+        
+        .result-item { display: flex; align-items: center; gap: 15px; padding: 12px 0; border-bottom: 1px solid #1a1a1a; cursor: pointer; }
+        .result-poster { width: 45px; aspect-ratio: 2/3; border-radius: 2px; object-fit: cover; background: #111; }
+        .result-info { display: flex; flex-direction: column; }
+        .result-meta { font-size: 11px; color: var(--dim); margin-top: 2px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .detail-panel { position: fixed; inset: 0; background: var(--panel-bg); z-index: 100; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; max-width: 450px; margin: auto; }
+        .detail-panel.open { transform: translateY(0); }
+        .panel-header { display: flex; justify-content: flex-end; padding: 15px 20px 5px; flex-shrink: 0; }
+        .close-btn { background: none; border: none; color: #444; font-size: 32px; cursor: pointer; }
+        .panel-content { flex: 1; overflow-y: auto; padding: 0 25px 60px; }
+        .media-header-row { display: flex; gap: 20px; margin-bottom: 25px; align-items: stretch; }
+        .panel-main-poster { width: 110px; aspect-ratio: 2/3; border-radius: 4px; border: 1px solid #222; object-fit: cover; background: #111; }
+        .header-info-col { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; padding: 2px 0; min-width: 0; }
+        .content-type-tag { color: var(--dim); font-size: 9px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; }
+        .title-input-edit { background: none; border: none; color: white; width: 100%; outline: none; padding: 0; font-family: 'Inter'; font-weight: 800; font-size: 24px; letter-spacing: -0.5px; margin-bottom: 10px; }
+        .credits-info { font-size: 11px; line-height: 1.4; color: #777; }
+        .credits-info b { color: #aaa; font-weight: 700; text-transform: uppercase; font-size: 9px; display: block; margin-top: 8px; }
+        .credits-info span { color: #ccc; font-size: 12px; display: block; white-space: normal; }
+        .ratings-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 5px; border-top: 1px solid #111; border-bottom: 1px solid #111; margin: 15px 0; }
+        .rating-box { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 13px; color: #fff; font-family: 'Inter'; }
+        .imdb-tag { background: var(--yellow-icon); color: #000; padding: 2px 4px; border-radius: 2px; font-size: 9px; font-weight: 900; }
+        .rt-svg { width: 16px; height: 16px; fill: var(--yellow-icon); }
+        .section-label { color: var(--accent); font-size: 10px; font-weight: 700; text-transform: uppercase; margin: 25px 0 12px; letter-spacing: 1px; }
+        .description { font-size: 14px; color: #bbb; line-height: 1.6; cursor: pointer; }
+        .description.collapsed { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .tags-container { display: flex; flex-wrap: wrap; gap: 8px; }
+        .tag-pill { padding: 8px 12px; border: 1px solid #333; border-radius: 4px; font-size: 10px; font-weight: 700; color: var(--dim); text-transform: uppercase; cursor: pointer; }
+        .tag-pill.active { border-color: #fff; color: #fff; background: #1a1a1a; }
+        .save-btn { width: 100%; padding: 18px; background: #fff; border: none; color: #000; font-weight: 900; text-transform: uppercase; border-radius: 4px; margin-top: 35px; cursor: pointer; letter-spacing: 1px; font-size: 13px; }
+
+        /* GRID & LIST */
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding-bottom: 20px; }
+        .movie-card { aspect-ratio: 2/3; background: var(--card); border-radius: 2px; overflow: hidden; border: 1px solid #222; cursor: pointer; }
+        .movie-card img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .list { display: flex; flex-direction: column; gap: 1px; }
+        /* Contenedor relativo para el swipe, asegura que no se desborde horizontalmente */
+        .swipe-wrapper { position: relative; border-radius: 2px; overflow: visible; margin-bottom: 1px; background: #111; }
+        
+        /* Actions laterales (swipe parcial) - Ahora con position absolute */
+        .list-actions { position: absolute; right: 0; top: 0; bottom: 0; display: flex; z-index: 1; width: 120px; }
+        .list-action { flex: 1; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; }
+        .action-seen { background: var(--success); }
+        .action-delete { background: var(--danger); }
+        .action-unseen { background: var(--info); }
+        
+        .diary-actions { position: absolute; right: 0; top: 0; bottom: 0; display: flex; z-index: 1; width: 120px; }
+        .diary-btn { flex: 1; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; }
+        
+        /* Item principal que se desliza, ahora con background y bordes redondeados para mejor efecto */
+        .list-item, .diary-entry-wrapper, .upcoming-swipe-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 6px 8px; 
+            background: #111; 
+            position: relative; 
+            z-index: 2; 
+            transition: transform 0.2s ease-out; 
+            touch-action: pan-x; 
+            cursor: pointer;
+        }
+        .list-poster { width: 28px; aspect-ratio: 2/3; object-fit: cover; border-radius: 1px; }
+        .list-info { flex: 1; display: flex; flex-direction: column; }
+        .list-title { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
+        .list-meta { font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--dim); }
+        .meta-type { color: var(--accent); }
+
+        .upcoming-empty, .empty-state { text-align: center; color: #444; margin-top: 60px; font-size: 10px; letter-spacing: 1px; }
+        .upcoming-poster { width: 45px; aspect-ratio: 2/3; border-radius: 2px; object-fit: cover; background: #111; }
+        .upcoming-badge { font-size: 8px; font-weight: 900; letter-spacing: 1.5px; color: var(--accent); text-transform: uppercase; margin-top: 3px; }
+
+        .section-header { font-family: var(--font-menu); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); padding-bottom: 6px; margin: 25px 0 15px; border-bottom: 1px solid #1a1a1a; }
+        .diary-entry { display: flex; width: 100%; padding: 8px 0; gap: 15px; align-items: flex-start; cursor: pointer; }
+        .entry-day { font-size: 0.85rem; font-weight: 300; color: var(--dim); width: 25px; flex-shrink: 0; padding-top: 2px; }
+        .entry-content { flex: 1; }
+        .entry-title { font-size: 1rem; font-weight: 400; margin-bottom: 4px; color: #fff; }
+        .entry-rating { font-size: 0.7rem; color: var(--accent); letter-spacing: 1.5px; }
+
+        .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; display: flex; justify-content: center; align-items: flex-end; backdrop-filter: blur(4px); }
+        .drawer { width: 100%; max-width: 450px; background: #161616; border-top: 1px solid #333; border-radius: 16px 16px 0 0; padding: 30px 20px 40px; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .drawer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .drawer-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #fff; margin: 0; }
+        .drawer-actions { display: flex; gap: 20px; }
+        .drawer-section { margin-bottom: 20px; }
+        .drawer-label { color: var(--accent); font-size: 10px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .option-row { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
+        .notes-area { width: 100%; background: #0d0d0d; border: 1px solid #333; border-radius: 4px; padding: 12px; color: white; font-family: 'Lato', sans-serif; font-size: 14px; resize: none; outline: none; }
+        .rating-stars { display: flex; gap: 15px; justify-content: center; margin: 30px 0; }
+        .star-btn { font-size: 32px; color: var(--accent); cursor: pointer; }
+
+        .nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(13,13,13,0.95); backdrop-filter: blur(10px); border-top: 1px solid #222; display: flex; justify-content: space-around; padding: 12px 0 30px; z-index: 50; max-width: 450px; margin: auto; }
+        .nav-btn { background: none; border: none; color: var(--dim); display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; cursor: pointer; }
+        .nav-btn.active { color: var(--text); }
+        .nav-btn span { font-size: 9px; text-transform: uppercase; font-weight: 700; }
+
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .hidden-input { display: none; }
+        .edit-overlay-btn { position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.7); border: 1px solid #444; border-radius: 50%; color: white; width: 26px; height: 26px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        
+        /* Fix: Asegurar que las acciones laterales no rompan el layout */
+        .swipe-wrapper {
+            overflow: hidden;
+        }
+        .list-item, .diary-entry-wrapper, .upcoming-swipe-item {
+            width: 100%;
+            will-change: transform;
+        }
+        /* Mejor contraste para el contenido deslizable */
+        .diary-entry-wrapper {
+            background: #0d0d0d;
+            padding: 0 8px;
+            border-bottom: 1px solid #111;
+        }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+    const { useState, useEffect, useMemo, useRef } = React;
+    const TMDB_KEY = "de64f1a0ec293cfecd070f307f9b2e7e";
+    const OMDB_KEY = "f7dac8ab";
+    const ALL_TAGS = ['QUEER', 'SPOOKY', 'XMAS', 'AWARDS'];
+
+    function App() {
+        const [activeTab, setActiveTab] = useState('watchlist');
+        const [query, setQuery] = useState('');
+        const [results, setResults] = useState([]);
+        const [selected, setSelected] = useState(null);
+        const [isEditingExisting, setIsEditingExisting] = useState(false);
+        const [isManualAdd, setIsManualAdd] = useState(false);
+        const [meta, setMeta] = useState({ dir: '', cast: '', rt: '—', imdb: '—', pop: '—', seasons: null });
+        const [isExpanded, setIsExpanded] = useState(false);
+        const [customTitle, setCustomTitle] = useState('');
+        const [customPoster, setCustomPoster] = useState('');
+        const [isUpcomingManual, setIsUpcomingManual] = useState(false);
+        const [searchActiveTags, setSearchActiveTags] = useState([]);
+        const [thoughts, setThoughts] = useState('');
+        
+        // Views y filters
+        const [viewWatchlist, setViewWatchlist] = useState('grid');
+        const [viewUpcoming, setViewUpcoming] = useState('list');
+        const [viewDiary, setViewDiary] = useState('list');
+        const [filterPanel, setFilterPanel] = useState(null);
+        const [selectedTags, setSelectedTags] = useState([]);
+        const [activeType, setActiveType] = useState(null);
+        const [sortWatchlist, setSortWatchlist] = useState('CUSTOM');
+        const [sortUpcoming, setSortUpcoming] = useState('DATE');
+        const [sortDiary, setSortDiary] = useState('RECENT');
+        
+        const [watchlist, setWatchlist] = useState([]);
+        const [upcoming, setUpcoming] = useState([]);
+        const [editingItem, setEditingItem] = useState(null);
+        const [ratingItem, setRatingItem] = useState(null);
+        const [history, setHistory] = useState([]);
+        const dragContainerRef = useRef(null);
+        const fileInputRef = useRef(null);
+
+        // Load from localStorage
+        useEffect(() => {
+            const saved = localStorage.getItem('peep_watchlist_v2');
+            if (saved) setWatchlist(JSON.parse(saved));
+            const savedUpcoming = localStorage.getItem('peep_upcoming_v2');
+            if (savedUpcoming) setUpcoming(JSON.parse(savedUpcoming));
+            const savedHistory = localStorage.getItem('peep_history_v2');
+            if (savedHistory) {
+                setHistory(JSON.parse(savedHistory).map(h => ({...h, watchedDate: new Date(h.watchedDate)})));
+            }
+        }, []);
+
+        useEffect(() => { localStorage.setItem('peep_watchlist_v2', JSON.stringify(watchlist)); }, [watchlist]);
+        useEffect(() => { localStorage.setItem('peep_upcoming_v2', JSON.stringify(upcoming)); }, [upcoming]);
+        useEffect(() => { localStorage.setItem('peep_history_v2', JSON.stringify(history)); }, [history]);
+
+        // BACKUP FUNCTIONS
+        const downloadBackup = () => {
+            const backupData = {
+                watchlist: watchlist,
+                upcoming: upcoming,
+                history: history.map(h => ({ ...h, watchedDate: h.watchedDate.toISOString() }))
+            };
+            const dataStr = JSON.stringify(backupData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `peep_backup_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        };
+
+        const uploadBackup = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const backupData = JSON.parse(e.target.result);
+                    if (backupData.watchlist) setWatchlist(backupData.watchlist);
+                    if (backupData.upcoming) setUpcoming(backupData.upcoming);
+                    if (backupData.history) {
+                        setHistory(backupData.history.map(h => ({ ...h, watchedDate: new Date(h.watchedDate) })));
+                    }
+                    alert('✅ Backup restaurado correctamente');
+                    setFilterPanel(null);
+                } catch (error) {
+                    alert('❌ Error al restaurar: archivo no válido');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        };
+
+        const exportDiaryCSV = () => {
+            if (history.length === 0) {
+                alert('No hay entradas en el Diary para exportar');
+                return;
+            }
+            const headers = ['Estado', 'Título', 'Tipo', 'Fecha de visto', 'Calificación', 'Etiquetas', 'Notas'];
+            const rows = history.map(entry => {
+                const isFromUpcoming = upcoming.some(u => u.id === entry.id);
+                let estado = 'Watchlist';
+                if (isFromUpcoming) estado = 'Upcoming';
+                const estrellas = entry.rating ? '★'.repeat(entry.rating) : 'Sin calificar';
+                const etiquetas = entry.tags ? entry.tags.map(t => t.toUpperCase()).join(', ') : '';
+                const fechaVisto = entry.watchedDate instanceof Date ? entry.watchedDate.toLocaleDateString('es-ES') : new Date(entry.watchedDate).toLocaleDateString('es-ES');
+                return [
+                    estado,
+                    entry.title || entry.displayTitle || 'Sin título',
+                    entry.type || (entry.media_type === 'movie' ? 'movie' : 'tv show'),
+                    fechaVisto,
+                    estrellas,
+                    etiquetas,
+                    entry.notes || entry.userThoughts || ''
+                ];
+            });
+            const csvContent = [headers, ...rows]
+                .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+                .join('\n');
+            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `peep_diary_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        };
+
+        // Check upcoming releases
+        useEffect(() => {
+            const today = new Date();
+            let changed = false;
+            const stillUpcoming = [];
+            const nowReleased = [];
+            upcoming.forEach(item => {
+                const releaseDate = item.release_date || item.first_air_date;
+                if (!item.isManualOverride && releaseDate && releaseDate.length >= 8 && new Date(releaseDate) <= today) {
+                    changed = true;
+                    nowReleased.push({...item, status: 'released'});
+                } else {
+                    stillUpcoming.push(item);
+                }
+            });
+            if (changed) {
+                setUpcoming(stillUpcoming);
+                setWatchlist(prev => [...nowReleased, ...prev]);
+            }
+        }, []);
+
+        // BÚSQUEDA MEJORADA: por título, director y actores
+        useEffect(() => {
+            const timer = setTimeout(() => { if (query.length > 2) fetchSearchEnhanced(); else if (query.length === 0) setResults([]); }, 500);
+            return () => clearTimeout(timer);
+        }, [query]);
+
+        const fetchSearchEnhanced = async () => {
+            try {
+                const resMulti = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}`);
+                const dataMulti = await resMulti.json();
+                const titleResults = dataMulti.results.filter(i => i.media_type === 'movie' || i.media_type === 'tv');
+                const resPerson = await fetch(`https://api.themoviedb.org/3/search/person?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}`);
+                const dataPerson = await resPerson.json();
+                const personResults = [];
+                for (const person of dataPerson.results.slice(0, 5)) {
+                    const resCredits = await fetch(`https://api.themoviedb.org/3/person/${person.id}/combined_credits?api_key=${TMDB_KEY}`);
+                    const creditsData = await resCredits.json();
+                    const knownWorks = creditsData.cast?.slice(0, 3) || [];
+                    knownWorks.forEach(work => {
+                        if (work.media_type === 'movie' || work.media_type === 'tv') {
+                            personResults.push({
+                                ...work,
+                                media_type: work.media_type,
+                                searchMatch: `👤 ${person.name}`,
+                                personName: person.name
+                            });
+                        }
+                    });
+                }
+                const allResults = [...titleResults, ...personResults];
+                const uniqueResults = [];
+                const seenIds = new Set();
+                for (const item of allResults) {
+                    if (!seenIds.has(item.id)) {
+                        seenIds.add(item.id);
+                        uniqueResults.push(item);
+                    }
+                }
+                setResults(uniqueResults);
+            } catch (error) {
+                console.error("Error en búsqueda:", error);
+                setResults([]);
+            }
+        };
+
+        const getYear = (item) => {
+            const date = item.release_date || item.first_air_date || item.date;
+            return date ? date.substring(0, 4) : 'TBA';
+        };
+
+        const openDetail = async (item, isEditing = false, existingItem = null, isManual = false) => {
+            if (isManual) {
+                setIsManualAdd(true);
+                setIsEditingExisting(false);
+                setSelected({ id: Date.now(), media_type: 'movie', title: '', name: '' });
+                setCustomTitle('');
+                setCustomPoster('');
+                setIsUpcomingManual(false);
+                setThoughts('');
+                setSearchActiveTags([]);
+                return;
+            }
+            if (isEditing && existingItem) {
+                setIsEditingExisting(true);
+                setIsManualAdd(false);
+                setSelected(existingItem);
+                setCustomTitle(existingItem.displayTitle || existingItem.title);
+                setCustomPoster(existingItem.displayPoster || existingItem.poster);
+                setIsUpcomingManual(existingItem.status === 'upcoming');
+                setThoughts(existingItem.notes || existingItem.userThoughts || '');
+                setSearchActiveTags(existingItem.tags?.map(t => t.toUpperCase()) || []);
+                return;
+            }
+            setIsEditingExisting(false);
+            setIsManualAdd(false);
+            setSelected(item);
+            setCustomTitle(item.displayTitle || item.title || item.name);
+            setCustomPoster(item.displayPoster || (item.poster_path ? `https://image.tmdb.org/t/p/w300${item.poster_path}` : ''));
+            const releaseDate = item.release_date || item.first_air_date;
+            const isAutoUpcoming = !releaseDate || releaseDate.length < 8 || new Date(releaseDate) > new Date();
+            setIsUpcomingManual(item.addedAt ? item.status === 'upcoming' : isAutoUpcoming);
+            setIsExpanded(false);
+            setThoughts(item.userThoughts || '');
+            setSearchActiveTags(item.tags || []);
+            setMeta({ dir: '...', cast: '...', rt: '—', imdb: '—', pop: '—', seasons: null });
+            const type = item.media_type === 'movie' ? 'movie' : 'tv';
+            try {
+                const resDetail = await fetch(`https://api.themoviedb.org/3/${type}/${item.id}?api_key=${TMDB_KEY}`);
+                const d = await resDetail.json();
+                setMeta(prev => ({ ...prev, seasons: d.number_of_seasons || null }));
+                const resCredits = await fetch(`https://api.themoviedb.org/3/${type}/${item.id}/credits?api_key=${TMDB_KEY}`);
+                const credits = await resCredits.json();
+                const dir = type === 'movie' ? credits.crew?.find(p => p.job === 'Director')?.name : credits.crew?.find(p => p.job === 'Executive Producer')?.name;
+                setMeta(prev => ({ ...prev, dir: dir || 'Unknown', cast: credits.cast?.slice(0,4).map(c=>c.name).join(', ') || 'N/A' }));
+                const resExt = await fetch(`https://api.themoviedb.org/3/${type}/${item.id}/external_ids?api_key=${TMDB_KEY}`);
+                const ext = await resExt.json();
+                if (ext.imdb_id) {
+                    const resOmdb = await fetch(`https://www.omdbapi.com/?i=${ext.imdb_id}&apikey=${OMDB_KEY}`);
+                    const om = await resOmdb.json();
+                    const rt = om.Ratings?.find(r => r.Source === "Rotten Tomatoes")?.Value || '—';
+                    const imdb = om.imdbRating !== "N/A" ? om.imdbRating : (item.vote_average?.toFixed(1) || '—');
+                    const pop = om.Metascore !== "N/A" ? `${om.Metascore}%` : `${Math.round(item.vote_average * 10)}%`;
+                    setMeta(prev => ({ ...prev, rt, imdb, pop }));
+                } else {
+                    setMeta(prev => ({ ...prev, imdb: item.vote_average?.toFixed(1) || '—', pop: `${Math.round(item.vote_average * 10)}%` }));
+                }
+            } catch (e) { console.log("Error fetching details:", e); }
+        };
+
+        const handleSave = () => {
+            if (isManualAdd) {
+                const newItem = {
+                    id: Date.now(),
+                    displayTitle: customTitle,
+                    displayPoster: customPoster,
+                    poster: customPoster,
+                    title: customTitle,
+                    type: 'movie',
+                    status: isUpcomingManual ? 'upcoming' : 'released',
+                    isManualOverride: isUpcomingManual,
+                    addedAt: new Date().toISOString(),
+                    tags: searchActiveTags.map(t => t.toLowerCase()),
+                    userThoughts: thoughts,
+                    notes: thoughts,
+                    date: new Date().toISOString().substring(0,10),
+                    media_type: 'movie'
+                };
+                if (isUpcomingManual) setUpcoming(prev => [newItem, ...prev]);
+                else setWatchlist(prev => [newItem, ...prev]);
+                setSelected(null);
+                setIsManualAdd(false);
+                setActiveTab(isUpcomingManual ? 'upcoming' : 'watchlist');
+                return;
+            }
+            if (isEditingExisting && selected) {
+                const updatedItem = {
+                    ...selected,
+                    displayTitle: customTitle,
+                    displayPoster: customPoster,
+                    poster: customPoster,
+                    title: customTitle,
+                    tags: searchActiveTags.map(t => t.toLowerCase()),
+                    notes: thoughts,
+                    userThoughts: thoughts
+                };
+                if (selected.status === 'upcoming' || isUpcomingManual) {
+                    setUpcoming(prev => prev.map(item => item.id === selected.id ? { ...updatedItem, status: 'upcoming' } : item));
+                } else {
+                    setWatchlist(prev => prev.map(item => item.id === selected.id ? updatedItem : item));
+                }
+                setSelected(null);
+                setIsEditingExisting(false);
+                return;
+            }
+            const newItem = {
+                ...selected,
+                displayTitle: customTitle,
+                displayPoster: customPoster,
+                poster: customPoster,
+                title: customTitle,
+                type: selected.media_type === 'movie' ? 'movie' : 'tv show',
+                status: isUpcomingManual ? 'upcoming' : 'released',
+                isManualOverride: isUpcomingManual,
+                addedAt: new Date().toISOString(),
+                tags: searchActiveTags.map(t => t.toLowerCase()),
+                userThoughts: thoughts,
+                notes: thoughts,
+                date: selected.release_date || selected.first_air_date || new Date().toISOString().substring(0,10),
+            };
+            if (isUpcomingManual) {
+                setUpcoming(prev => [newItem, ...prev.filter(i => i.id !== newItem.id)]);
+                setWatchlist(prev => prev.filter(i => i.id !== newItem.id));
+            } else {
+                setWatchlist(prev => [newItem, ...prev.filter(i => i.id !== newItem.id)]);
+                setUpcoming(prev => prev.filter(i => i.id !== newItem.id));
+            }
+            setSelected(null);
+            setActiveTab(isUpcomingManual ? 'upcoming' : 'watchlist');
+        };
+
+        const processedWatchlist = useMemo(() => {
+            let data = [...watchlist];
+            if (activeType) data = data.filter(i => i.type === activeType);
+            if (selectedTags.length > 0) data = data.filter(i => i.tags && i.tags.some(t => selectedTags.includes(t.toLowerCase())));
+            if (sortWatchlist === 'A-Z') data.sort((a,b) => (a.title||'').localeCompare(b.title||''));
+            if (sortWatchlist === 'RECENT') data.sort((a,b) => new Date(b.addedAt||b.date||0) - new Date(a.addedAt||a.date||0));
+            return data;
+        }, [watchlist, selectedTags, sortWatchlist, activeType]);
+
+        const processedUpcoming = useMemo(() => {
+            let data = [...upcoming];
+            if (sortUpcoming === 'A-Z') data.sort((a,b) => (a.title||'').localeCompare(b.title||''));
+            if (sortUpcoming === 'DATE') data.sort((a,b) => {
+                const dateA = a.release_date || a.first_air_date || a.date || '9999';
+                const dateB = b.release_date || b.first_air_date || b.date || '9999';
+                return dateA.localeCompare(dateB);
+            });
+            return data;
+        }, [upcoming, sortUpcoming]);
+
+        const processedDiary = useMemo(() => {
+            let data = [...history];
+            if (sortDiary === 'A-Z') data.sort((a,b) => (a.title||'').localeCompare(b.title||''));
+            if (sortDiary === 'RATING') data.sort((a,b) => (b.rating || 0) - (a.rating || 0));
+            if (sortDiary === 'RECENT') data.sort((a,b) => new Date(b.watchedDate) - new Date(a.watchedDate));
+            return data;
+        }, [history, sortDiary]);
+
+        useEffect(() => {
+            if (dragContainerRef.current && activeTab === 'watchlist' && sortWatchlist === 'CUSTOM' && !activeType && selectedTags.length === 0 && viewWatchlist === 'list') {
+                const sortable = new Sortable(dragContainerRef.current, {
+                    animation: 200, delay: 150,
+                    onEnd: (evt) => {
+                        const newItems = [...watchlist];
+                        const [movedItem] = newItems.splice(evt.oldIndex, 1);
+                        newItems.splice(evt.newIndex, 0, movedItem);
+                        setWatchlist(newItems);
+                    }
+                });
+                return () => sortable.destroy();
+            }
+        }, [activeTab, viewWatchlist, watchlist, sortWatchlist, activeType, selectedTags]);
+
+        const groupedDiary = useMemo(() => {
+            const groups = {};
+            const months = ["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"];
+            processedDiary.forEach(m => {
+                const d = new Date(m.watchedDate);
+                const key = `${months[d.getMonth()]} ${d.getFullYear()}`;
+                if (!groups[key]) groups[key] = [];
+                groups[key].push({ ...m, day: d.getDate().toString().padStart(2, '0') });
+            });
+            return groups;
+        }, [processedDiary]);
+
+        const confirmRating = (stars) => {
+            const isExisting = history.some(h => h.historyId === ratingItem.historyId);
+            if (isExisting) {
+                setHistory(prev => prev.map(h => h.historyId === ratingItem.historyId ? {...h, rating: stars} : h));
+            } else {
+                const historyId = Date.now();
+                setHistory(prev => [{...ratingItem, historyId, watchedDate: new Date(), rating: stars}, ...prev]);
+                setWatchlist(prev => prev.filter(i => i.id !== ratingItem.id));
+                setActiveTab('diary');
+            }
+            setRatingItem(null);
+        };
+
+        const toggleTagInItem = (tag) => {
+            const lowerTag = tag.toLowerCase();
+            setWatchlist(prev => prev.map(item => {
+                if (item.id === editingItem.id) {
+                    const newTags = item.tags.includes(lowerTag) ? item.tags.filter(t => t !== lowerTag) : [...item.tags, lowerTag];
+                    const updated = { ...item, tags: newTags };
+                    setEditingItem(updated);
+                    return updated;
+                }
+                return item;
+            }));
+        };
+
+        const updateItemType = (newType) => {
+            setWatchlist(prev => prev.map(item => item.id === editingItem.id ? { ...item, type: newType } : item));
+            setEditingItem(prev => ({ ...prev, type: newType }));
+        };
+
+        const updateNotes = (newNotes) => {
+            setWatchlist(prev => prev.map(item => item.id === editingItem.id ? { ...item, notes: newNotes } : item));
+            setEditingItem(prev => ({ ...prev, notes: newNotes }));
+        };
+
+        // SWIPE FUNCTIONS
+        const onSwipeStart = (e) => { e.currentTarget.dataset.startX = e.touches[0].clientX; e.currentTarget.style.transition = 'none'; e.currentTarget.style.transform = 'translateX(0px)'; };
+        const onSwipeMove = (e) => {
+            const startX = parseFloat(e.currentTarget.dataset.startX);
+            if (isNaN(startX)) return;
+            const diff = e.touches[0].clientX - startX;
+            const moveX = Math.max(Math.min(diff, 0), -120);
+            e.currentTarget.style.transform = `translateX(${moveX}px)`;
+        };
+        const onSwipeEnd = (e) => {
+            const transform = e.currentTarget.style.transform;
+            const diff = transform === 'none' ? 0 : parseFloat(transform.replace('translateX(', '').replace('px)', '')) || 0;
+            e.currentTarget.style.transition = 'transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28)';
+            if (diff < -60) e.currentTarget.style.transform = 'translateX(-120px)';
+            else e.currentTarget.style.transform = 'translateX(0px)';
+        };
+        const resetSwipe = (e) => { if (e.currentTarget) { e.currentTarget.style.transform = 'translateX(0px)'; e.currentTarget.style.transition = 'transform 0.3s ease-out'; } };
+        const deleteFromWatchlist = (item) => setWatchlist(prev => prev.filter(i => i.id !== item.id));
+        const markAsSeen = (item) => setRatingItem(item);
+        const deleteFromUpcoming = (item) => setUpcoming(prev => prev.filter(i => i.id !== item.id));
+        const deleteFromDiary = (historyId) => setHistory(prev => prev.filter(h => h.historyId !== historyId));
+        const moveBackToWatchlist = (entry) => {
+            const { historyId, watchedDate, rating, day, ...rest } = entry;
+            setWatchlist(prev => [rest, ...prev]);
+            setHistory(prev => prev.filter(h => h.historyId !== historyId));
+        };
+
+        return (
+            <div className="app-container">
+                <header className="header"><img src="peep-logo.png" className="logo" alt="Peep" /></header>
+
+                {/* WATCHLIST TOOLBAR */}
+                {activeTab === 'watchlist' && (
+                    <div className="toolbar">
+                        <div className="tabs">
+                            <button className={`tab ${activeType === 'movie' ? 'active' : ''}`} onClick={() => setActiveType(activeType === 'movie' ? null : 'movie')}>Movies</button>
+                            <button className={`tab ${activeType === 'tv show' ? 'active' : ''}`} onClick={() => setActiveType(activeType === 'tv show' ? null : 'tv show')}>TV Shows</button>
+                        </div>
+                        <div className="actions">
+                            <button className={`icon-btn ${filterPanel === 'sort' ? 'active' : ''}`} onClick={() => setFilterPanel(filterPanel === 'sort' ? null : 'sort')}><div className="sort-icon"><span>↑</span><span>↓</span></div></button>
+                            <button className={`icon-btn ${filterPanel === 'tags' ? 'active' : ''}`} onClick={() => setFilterPanel(filterPanel === 'tags' ? null : 'tags')}><i className="ph-bold ph-tag" style={{fontSize: '20px'}}></i></button>
+                            <button className={`icon-btn ${filterPanel === 'settings' ? 'active' : ''}`} onClick={() => setFilterPanel(filterPanel === 'settings' ? null : 'settings')}><i className="ph-bold ph-gear" style={{fontSize: '20px'}}></i></button>
+                            <button className="icon-btn" onClick={() => setViewWatchlist(viewWatchlist === 'grid' ? 'list' : 'grid')}><i className={`ph-bold ${viewWatchlist === 'grid' ? 'ph-list-bullets' : 'ph-squares-four'}`} style={{fontSize: '20px'}}></i></button>
+                        </div>
+                    </div>
+                )}
+
+                {/* UPCOMING TOOLBAR */}
+                {activeTab === 'upcoming' && (
+                    <div className="toolbar">
+                        <div className="tabs">
+                            <button className={`tab ${sortUpcoming === 'DATE' ? 'active' : ''}`} onClick={() => setSortUpcoming('DATE')}>DATE</button>
+                            <button className={`tab ${sortUpcoming === 'A-Z' ? 'active' : ''}`} onClick={() => setSortUpcoming('A-Z')}>A-Z</button>
+                        </div>
+                        <div className="actions">
+                            <button className="icon-btn" onClick={() => setViewUpcoming(viewUpcoming === 'grid' ? 'list' : 'grid')}><i className={`ph-bold ${viewUpcoming === 'grid' ? 'ph-list-bullets' : 'ph-squares-four'}`} style={{fontSize: '20px'}}></i></button>
+                        </div>
+                    </div>
+                )}
+
+                {/* DIARY TOOLBAR */}
+                {activeTab === 'diary' && (
+                    <div className="toolbar">
+                        <div className="tabs">
+                            <button className={`tab ${sortDiary === 'RECENT' ? 'active' : ''}`} onClick={() => setSortDiary('RECENT')}>RECENT</button>
+                            <button className={`tab ${sortDiary === 'A-Z' ? 'active' : ''}`} onClick={() => setSortDiary('A-Z')}>A-Z</button>
+                            <button className={`tab ${sortDiary === 'RATING' ? 'active' : ''}`} onClick={() => setSortDiary('RATING')}>RATING</button>
+                        </div>
+                        <div className="actions">
+                            <button className="icon-btn" onClick={() => setViewDiary(viewDiary === 'grid' ? 'list' : 'grid')}><i className={`ph-bold ${viewDiary === 'grid' ? 'ph-list-bullets' : 'ph-squares-four'}`} style={{fontSize: '20px'}}></i></button>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'watchlist' && filterPanel === 'sort' && (
+                    <div className="panel">{['RECENT', 'A-Z', 'CUSTOM'].map(m => <div key={m} className={`pill ${sortWatchlist === m ? 'active' : ''}`} onClick={() => {setSortWatchlist(m); setFilterPanel(null);}}>{m}</div>)}</div>
+                )}
+                {activeTab === 'watchlist' && filterPanel === 'tags' && (
+                    <div className="panel">{ALL_TAGS.map(t => <div key={t} className={`pill ${selectedTags.includes(t.toLowerCase()) ? 'active' : ''}`} onClick={() => setSelectedTags(prev => prev.includes(t.toLowerCase()) ? prev.filter(x => x !== t.toLowerCase()) : [...prev, t.toLowerCase()])}>{t}</div>)}</div>
+                )}
+                {activeTab === 'watchlist' && filterPanel === 'settings' && (
+                    <div className="panel">
+                        <div className="pill" onClick={downloadBackup}>💾 DOWNLOAD</div>
+                        <div className="pill" onClick={() => fileInputRef.current.click()}>📂 UPLOAD</div>
+                        <div className="pill" onClick={exportDiaryCSV}>📊 EXPORT DIARY</div>
+                        <input type="file" ref={fileInputRef} accept=".json" className="hidden-input" onChange={uploadBackup} />
+                    </div>
+                )}
+
+                {/* SEARCH HEADER con botón + dentro */}
+                {activeTab === 'search' && (
+                    <div className="search-header">
+                        <div className="search-bar">
+                            <i className="ph ph-magnifying-glass"></i>
+                            <input placeholder="Search movies, shows, directors or actors..." value={query} onChange={e => setQuery(e.target.value)} autoFocus />
+                            <button className="search-add-btn" onClick={() => openDetail(null, false, null, true)}>
+                                <i className="ph-bold ph-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* MAIN CONTENT */}
+                <main className="content">
+                    {activeTab === 'search' && (
+                        <div className="fade-in">
+                            {results.length === 0 && query.length > 2 && <div className="empty-state">No results found. Try another search or tap ➕</div>}
+                            {results.map(i => (
+                                <div key={i.id} className="result-item" onClick={() => openDetail(i, false, null, false)}>
+                                    <img src={i.poster_path ? `https://image.tmdb.org/t/p/w92${i.poster_path}` : 'https://placehold.co/92x138/111/333?text=No+Poster'} className="result-poster" />
+                                    <div className="result-info">
+                                        <div style={{fontWeight:700}}>{i.title || i.name}</div>
+                                        <div className="result-meta">{getYear(i)} • {i.media_type === 'movie' ? 'Movie' : 'TV Series'}{i.searchMatch && <span style={{color: 'var(--accent)', marginLeft: '8px'}}>{i.searchMatch}</span>}</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* WATCHLIST */}
+                    {activeTab === 'watchlist' && (
+                        <div className={viewWatchlist === 'grid' ? "grid fade-in" : "list fade-in"} ref={dragContainerRef}>
+                            {processedWatchlist.length === 0 && <div className="empty-state">WATCHLIST IS EMPTY</div>}
+                            {processedWatchlist.map(item => (viewWatchlist === 'grid' ? (
+                                <div key={item.id} className="movie-card" onClick={() => setEditingItem(item)}><img src={item.poster || item.displayPoster} /></div>
+                            ) : (
+                                <div key={item.id} className="swipe-wrapper">
+                                    <div className="list-actions"><div className="list-action action-seen" onClick={() => markAsSeen(item)}><i className="ph-bold ph-eye"></i></div><div className="list-action action-delete" onClick={() => deleteFromWatchlist(item)}><i className="ph-bold ph-trash"></i></div></div>
+                                    <div className="list-item" onTouchStart={onSwipeStart} onTouchMove={onSwipeMove} onTouchEnd={onSwipeEnd} onClick={(e) => { resetSwipe(e); setEditingItem(item); }}>
+                                        <img src={item.poster || item.displayPoster} className="list-poster" /><div className="list-info"><div className="list-title">{item.title || item.displayTitle}</div><div className="list-meta"><span className="meta-type">{item.type}</span> • {getYear(item)}</div></div>
+                                    </div>
+                                </div>
+                            )))}
+                        </div>
+                    )}
+
+                    {/* UPCOMING */}
+                    {activeTab === 'upcoming' && (
+                        <div className={viewUpcoming === 'grid' ? "grid fade-in" : "list fade-in"}>
+                            {processedUpcoming.length === 0 && <div className="upcoming-empty">NO UPCOMING TITLES</div>}
+                            {processedUpcoming.map(item => (viewUpcoming === 'grid' ? (
+                                <div key={item.id} className="movie-card" onClick={() => openDetail(item, true, item, false)}><img src={item.displayPoster || item.poster} /></div>
+                            ) : (
+                                <div key={item.id} className="swipe-wrapper">
+                                    <div className="list-actions" style={{width: '80px'}}><div className="list-action action-delete" onClick={() => deleteFromUpcoming(item)}><i className="ph-bold ph-trash"></i></div></div>
+                                    <div className="upcoming-swipe-item" onTouchStart={onSwipeStart} onTouchMove={onSwipeMove} onTouchEnd={onSwipeEnd} onClick={(e) => { resetSwipe(e); openDetail(item, true, item, false); }}>
+                                        <img src={item.displayPoster || item.poster} className="upcoming-poster" /><div className="result-info"><div style={{fontWeight:700}}>{item.displayTitle || item.title}</div><div className="upcoming-badge">⏳ Waiting for release</div><div className="result-meta">{item.media_type === 'movie' ? 'Movie' : 'TV Series'} {item.release_date || item.first_air_date ? `· ${getYear(item)}` : ''}</div></div>
+                                    </div>
+                                </div>
+                            )))}
+                        </div>
+                    )}
+
+                    {/* DIARY */}
+                    {activeTab === 'diary' && (
+                        <div className={viewDiary === 'grid' ? "grid fade-in" : "list fade-in"}>
+                            {Object.keys(groupedDiary).length === 0 ? <div className="empty-state">DIARY IS EMPTY</div> : viewDiary === 'grid' ? (
+                                Object.keys(groupedDiary).map(monthKey => (<div key={monthKey} style={{gridColumn: '1/-1'}}><div className="section-header">{monthKey}</div><div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px'}}>{groupedDiary[monthKey].map(m => (<div key={m.historyId} className="movie-card" onClick={() => setRatingItem(m)}><img src={m.poster || m.displayPoster} /></div>))}</div></div>))
+                            ) : (
+                                Object.keys(groupedDiary).map(monthKey => (<div key={monthKey}><div className="section-header">{monthKey}</div>{groupedDiary[monthKey].map(m => (<div key={m.historyId} className="swipe-wrapper" style={{background:'#0d0d0d'}}><div className="diary-actions"><div className="diary-btn" style={{background: 'var(--info)'}} onClick={() => moveBackToWatchlist(m)}><i className="ph-bold ph-eye-slash"></i></div><div className="diary-btn" style={{background: 'var(--danger)'}} onClick={() => deleteFromDiary(m.historyId)}><i className="ph-bold ph-trash"></i></div></div><div className="diary-entry-wrapper" onTouchStart={onSwipeStart} onTouchMove={onSwipeMove} onTouchEnd={onSwipeEnd}><div className="diary-entry" onClick={(e) => { resetSwipe(e); setRatingItem(m); }}><div className="entry-day">{m.day}</div><div className="entry-content"><div className="entry-title">{m.title || m.displayTitle}</div><div className="entry-rating">{"★".repeat(m.rating || 0)}<span style={{color:'#222'}}>{"★".repeat(5-(m.rating||0))}</span></div></div></div></div></div>))}</div>))
+                            )}
+                        </div>
+                    )}
+                </main>
+
+                {/* DETAIL PANEL */}
+                <div className={`detail-panel ${selected ? 'open' : ''}`}>
+                    {selected && (<><div className="panel-header"><button className="close-btn" onClick={() => { setSelected(null); setIsEditingExisting(false); setIsManualAdd(false); }}><i className="ph ph-caret-down"></i></button></div>
+                    <div className="panel-content">
+                        <div className="media-header-row"><div style={{position:'relative', width:'110px', flexShrink:0}}><img src={customPoster || 'https://placehold.co/110x165/111/333?text=No+Poster'} className="panel-main-poster" /><button className="edit-overlay-btn" onClick={() => { const url = prompt("Paste image URL:"); if(url) setCustomPoster(url); }}><i className="ph ph-pencil-simple"></i></button></div>
+                        <div className="header-info-col"><div className="content-type-tag">{isManualAdd ? 'Movie' : (selected.media_type === 'movie' ? 'Movie' : 'TV Show')} | {isManualAdd ? '2025' : getYear(selected)}<label style={{marginLeft:'10px', color: isUpcomingManual ? 'var(--accent)' : 'var(--dim)', cursor:'pointer', display:'inline-flex', alignItems:'center', gap:'4px'}}><input type="checkbox" checked={isUpcomingManual} onChange={e => setIsUpcomingManual(e.target.checked)} style={{display:'none'}} /><i className={isUpcomingManual ? "ph-fill ph-clock" : "ph ph-clock"}></i>{isUpcomingManual ? 'UPCOMING' : 'SET UPCOMING'}</label></div>
+                        <input className="title-input-edit" value={customTitle} onChange={e => setCustomTitle(e.target.value)} placeholder="Title..." />
+                        {!isManualAdd && (<div className="credits-info"><b>Directed by</b><span>{meta.dir}</span><b>Cast</b><span>{meta.cast}</span>{meta.seasons && <><b>Seasons</b><span>{meta.seasons} {meta.seasons === 1 ? 'Season' : 'Seasons'}</span></>}</div>)}</div></div>
+                        {!isManualAdd && (<><div className="ratings-row"><div className="rating-box"><span className="imdb-tag">IMDb</span> {meta.imdb}</div><div className="rating-box"><svg className="rt-svg" viewBox="0 0 512 512"><path d="M435.5 130c-15.3-24.8-41-41.5-68.5-44.1l-10-1c1.1-5.1 2.5-10.2 4.1-15.1l7.6-23.4-24.6 3.2c-15.5 2-30.1 7.6-43 16.2-12.9-8.6-27.5-14.2-43-16.2l-24.6-3.2 7.6 23.4c1.6 4.9 3 10 4.1 15.1l-10 1c-27.5 2.6-53.2 19.3-68.5 44.1C117.4 154.1 112 186.2 112 219.7c0 101.4 82.2 183.6 183.6 183.6h.8c101.4 0 183.6-82.2 183.6-183.6 0-33.5-5.4-65.6-14.5-89.7z"/></svg>{meta.rt}</div><div className="rating-box"><i className="ph-fill ph-popcorn" style={{color:'var(--accent)',fontSize:'16px'}}></i> {meta.pop}</div><div className="rating-box"><i className="ph-fill ph-star" style={{color:'var(--yellow-icon)',fontSize:'14px'}}></i> {selected.vote_average ? selected.vote_average.toFixed(1) : '—'}</div></div>
+                        <div className="section-label">Overview</div><div className={`description ${isExpanded ? '' : 'collapsed'}`} onClick={() => setIsExpanded(!isExpanded)}>{selected.overview || "No description available."}</div></>)}
+                        <div className="section-label">Tags</div><div className="tags-container">{ALL_TAGS.map(tag => (<div key={tag} className={`tag-pill ${searchActiveTags.includes(tag) ? 'active' : ''}`} onClick={() => setSearchActiveTags(p => p.includes(tag) ? p.filter(t => t !== tag) : [...p, tag])}>{tag}</div>))}</div>
+                        <div className="section-label">Thoughts</div><textarea style={{width:'100%',background:'#0a0a0a',border:'1px solid #1a1a1a',borderRadius:'4px',padding:'15px',color:'#fff',minHeight:'80px',outline:'none',fontFamily:'Lato',fontSize:'14px'}} placeholder="Add some notes..." value={thoughts} onChange={e => setThoughts(e.target.value)} />
+                        <button className="save-btn" onClick={handleSave}>{isManualAdd ? '➕ ADD MANUAL' : (isEditingExisting ? '✏️ UPDATE' : (isUpcomingManual ? '⏳ Add to Upcoming' : '+ Add to Watchlist'))}</button>
+                    </div></>)}
+                </div>
+
+                {/* NAV */}
+                <nav className="nav">
+                    <button className={`nav-btn ${activeTab === 'watchlist' ? 'active' : ''}`} onClick={() => setActiveTab('watchlist')}><i className={activeTab === 'watchlist' ? "ph-fill ph-bookmark-simple" : "ph ph-bookmark-simple"} style={{fontSize:'24px'}}></i><span>Watchlist</span></button>
+                    <button className={`nav-btn ${activeTab === 'search' ? 'active' : ''}`} onClick={() => setActiveTab('search')}><i className={activeTab === 'search' ? "ph-fill ph-magnifying-glass" : "ph ph-magnifying-glass"} style={{fontSize:'24px'}}></i><span>Search</span></button>
+                    <button className={`nav-btn ${activeTab === 'upcoming' ? 'active' : ''}`} onClick={() => setActiveTab('upcoming')}><i className={activeTab === 'upcoming' ? "ph-fill ph-clock" : "ph ph-clock"} style={{fontSize:'24px'}}></i><span>Upcoming</span></button>
+                    <button className={`nav-btn ${activeTab === 'diary' ? 'active' : ''}`} onClick={() => setActiveTab('diary')}><i className={activeTab === 'diary' ? "ph-fill ph-calendar-blank" : "ph ph-calendar-blank"} style={{fontSize:'24px'}}></i><span>Diary</span></button>
+                </nav>
+
+                {/* EDIT DRAWER */}
+                {editingItem && (<div className="drawer-overlay" onClick={() => setEditingItem(null)}><div className="drawer" onClick={e => e.stopPropagation()}><div className="drawer-header"><div className="drawer-title">{editingItem.title || editingItem.displayTitle}</div><div className="drawer-actions"><button className="icon-btn" onClick={() => { setRatingItem(editingItem); setEditingItem(null); }}><i className="ph-bold ph-eye" style={{fontSize:'20px'}}></i></button><button className="icon-btn" onClick={() => { setWatchlist(prev => prev.filter(i => i.id !== editingItem.id)); setEditingItem(null); }}><i className="ph-bold ph-trash" style={{fontSize:'20px'}}></i></button></div></div>
+                <div className="drawer-section"><div className="drawer-label">TYPE:</div><div className="option-row"><div className={`pill ${editingItem.type === 'movie' ? 'active' : ''}`} onClick={() => updateItemType('movie')}>MOVIE</div><div className={`pill ${editingItem.type === 'tv show' ? 'active' : ''}`} onClick={() => updateItemType('tv show')}>TV SHOW</div></div></div>
+                <div className="drawer-section"><div className="drawer-label">TAGS:</div><div className="option-row">{ALL_TAGS.map(t => (<div key={t} className={`pill ${editingItem.tags && editingItem.tags.includes(t.toLowerCase()) ? 'active' : ''}`} onClick={() => toggleTagInItem(t)}>{t}</div>))}</div></div>
+                <div className="drawer-section"><div className="drawer-label">NOTES:</div><textarea className="notes-area" rows="4" value={editingItem.notes || ""} onChange={e => updateNotes(e.target.value)} placeholder="Add thoughts..." /></div>
+                <button style={{width:'100%',padding:'16px',background:'none',border:'1px solid #333',borderRadius:'4px',color:'var(--accent)',fontWeight:'700',fontSize:'12px',letterSpacing:'1px',cursor:'pointer',marginTop:'10px'}} onClick={() => setEditingItem(null)}>SAVE CHANGES</button></div></div>)}
+
+                {/* RATING MODAL */}
+                {ratingItem && (<div className="drawer-overlay" style={{alignItems:'center'}} onClick={() => setRatingItem(null)}><div className="drawer" style={{borderRadius:'16px',padding:'40px 20px',textAlign:'center'}} onClick={e => e.stopPropagation()}><div className="drawer-label">RATING</div><div className="drawer-title" style={{marginBottom:'10px'}}>{ratingItem.title || ratingItem.displayTitle}</div><div className="rating-stars">{[1,2,3,4,5].map(star => (<span key={star} className="star-btn" onClick={() => confirmRating(star)}><i className={star <= (ratingItem.rating || 0) ? "ph-fill ph-star" : "ph ph-star"}></i></span>))}</div><div style={{fontSize:'9px',color:'var(--dim)',textTransform:'uppercase',letterSpacing:'1px'}}>Tap a star to confirm</div></div></div>)}
+            </div>
+        );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
