@@ -28,11 +28,13 @@
             --danger: #ff3b30; --success: #34c759; --info: #007aff;
             --font-menu: 'Inter', sans-serif;
         }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--text); font-family: 'Lato', sans-serif; margin: 0; overflow: hidden; height: 100vh; }
-        .app-container { max-width: 450px; margin: auto; height: 100vh; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        html, body { height: 100%; overflow: hidden; background: var(--bg); }
+        body { font-family: 'Lato', sans-serif; color: var(--text); }
+        #root { height: 100%; }
+        .app-container { max-width: 450px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; background: var(--bg); position: relative; overflow: hidden; }
 
-        .header { text-align: center; padding: 20px 0 10px; flex-shrink: 0; }
+        .header { text-align: center; padding: 20px 0 10px; flex-shrink: 0; position: relative; }
         .logo { height: 35px; }
 
         .toolbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; border-bottom: 1px solid #222; flex-shrink: 0; }
@@ -49,14 +51,41 @@
         .pill { padding: 6px 12px; border: 1px solid #333; border-radius: 2px; font-size: 8px; font-weight: 700; color: var(--dim); white-space: nowrap; text-transform: uppercase; cursor: pointer; }
         .pill.active { border-color: var(--text); color: var(--text); background: #222; }
 
-        .search-header { padding: 15px 20px; flex-shrink: 0; }
-        .search-bar { background: #1a1a1a; border-radius: 8px; display: flex; align-items: center; padding: 12px 16px; gap: 12px; }
+        /* SEARCH HEADER - flecha condicional */
+        .search-header { padding: 15px 20px; flex-shrink: 0; position: relative; }
+        .back-arrow-search {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--dim);
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            z-index: 15;
+        }
+        .back-arrow-search:active { color: var(--accent); }
+        .search-bar { 
+            background: #1a1a1a; 
+            border-radius: 8px; 
+            display: flex; 
+            align-items: center; 
+            padding: 12px 16px; 
+            gap: 12px;
+            transition: margin-left 0.2s ease;
+        }
+        .search-bar.no-arrow { margin-left: 0; }
+        .search-bar.with-arrow { margin-left: 40px; }
         .search-bar input { background: none; border: none; color: white; flex: 1; outline: none; font-size: 16px; }
         .search-bar input::placeholder { color: #444; }
         .search-add-btn { background: none; border: none; color: var(--accent); cursor: pointer; padding: 0; display: flex; align-items: center; font-size: 22px; font-weight: 700; }
         .search-add-btn i { font-size: 22px; }
 
-        /* SCROLL OCULTO PERO FUNCIONAL */
         .content { 
             flex: 1; 
             overflow-y: auto; 
@@ -65,15 +94,63 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
         }
-        .content::-webkit-scrollbar {
-            display: none;
+        .content::-webkit-scrollbar { display: none; }
+        
+        .horizontal-scroll {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 10px;
+        }
+        .horizontal-scroll::-webkit-scrollbar { display: none; }
+        
+        .estreno-poster {
+            width: 100px;
+            aspect-ratio: 2/3;
+            border-radius: 4px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 1px solid #222;
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+        .estreno-poster:active { transform: scale(0.98); }
+        
+        .section-row { margin-bottom: 25px; }
+        .section-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 12px;
+        }
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 1px;
+        }
+        .more-btn {
+            background: none;
+            border: none;
+            color: var(--dim);
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+        .more-btn:active { color: var(--accent); }
+        
+        .search-results-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
         }
         
-        .result-item { display: flex; align-items: center; gap: 15px; padding: 12px 0; border-bottom: 1px solid #1a1a1a; cursor: pointer; }
-        .result-poster { width: 45px; aspect-ratio: 2/3; border-radius: 2px; object-fit: cover; background: #111; }
-        .result-info { display: flex; flex-direction: column; }
-        .result-meta { font-size: 11px; color: var(--dim); margin-top: 2px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.5px; }
-
         .detail-panel { position: fixed; inset: 0; background: var(--panel-bg); z-index: 100; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; max-width: 450px; margin: auto; }
         .detail-panel.open { transform: translateY(0); }
         .panel-header { display: flex; justify-content: flex-end; padding: 15px 20px 5px; flex-shrink: 0; }
@@ -86,7 +163,6 @@
         .title-input-edit { background: none; border: none; color: white; width: 100%; outline: none; padding: 0; font-family: 'Inter'; font-weight: 800; font-size: 24px; letter-spacing: -0.5px; margin-bottom: 10px; }
         .credits-info { font-size: 11px; line-height: 1.4; color: #777; }
         .credits-info b { color: #aaa; font-weight: 700; text-transform: uppercase; font-size: 9px; display: block; margin-top: 8px; }
-        .credits-info span { color: #ccc; font-size: 12px; display: block; white-space: normal; }
         .ratings-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 5px; border-top: 1px solid #111; border-bottom: 1px solid #111; margin: 15px 0; }
         .rating-box { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 13px; color: #fff; font-family: 'Inter'; }
         .imdb-tag { background: var(--yellow-icon); color: #000; padding: 2px 4px; border-radius: 2px; font-size: 9px; font-weight: 900; }
@@ -105,51 +181,17 @@
         
         .list { display: flex; flex-direction: column; gap: 1px; }
         
-        .swipe-wrapper { 
-            position: relative; 
-            border-radius: 2px; 
-            overflow: visible; 
-            margin-bottom: 1px; 
-            background: #111;
-        }
-        
-        .list-actions { 
-            position: absolute; 
-            right: 0; 
-            top: 0; 
-            bottom: 0; 
-            display: flex; 
-            z-index: 1; 
-            width: 120px; 
-        }
+        .swipe-wrapper { position: relative; border-radius: 2px; overflow: visible; margin-bottom: 1px; background: #111; }
+        .list-actions { position: absolute; right: 0; top: 0; bottom: 0; display: flex; z-index: 1; width: 120px; }
         .list-action { flex: 1; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; }
         .action-seen { background: var(--success); }
         .action-delete { background: var(--danger); }
-        
-        .diary-actions { 
-            position: absolute; 
-            right: 0; 
-            top: 0; 
-            bottom: 0; 
-            display: flex; 
-            z-index: 1; 
-            width: 120px; 
-        }
+        .diary-actions { position: absolute; right: 0; top: 0; bottom: 0; display: flex; z-index: 1; width: 120px; }
         .diary-btn { flex: 1; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; }
-        
         .list-item, .diary-entry-wrapper, .upcoming-swipe-item { 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            padding: 6px 8px; 
-            background: #111; 
-            position: relative; 
-            z-index: 2; 
-            transition: transform 0.2s ease-out; 
-            cursor: pointer;
-            width: 100%;
+            display: flex; align-items: center; gap: 12px; padding: 6px 8px; background: #111; 
+            position: relative; z-index: 2; transition: transform 0.2s ease-out; cursor: pointer; width: 100%;
         }
-        
         .list-poster { width: 28px; aspect-ratio: 2/3; object-fit: cover; border-radius: 1px; }
         .list-info { flex: 1; display: flex; flex-direction: column; }
         .list-title { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
@@ -192,28 +234,69 @@
         .hidden-input { display: none; }
         .edit-overlay-btn { position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.7); border: 1px solid #444; border-radius: 50%; color: white; width: 26px; height: 26px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         
-        .swipe-wrapper {
-            overflow: hidden;
-        }
-        .diary-entry-wrapper {
-            background: #0d0d0d;
-            padding: 0 8px;
-            border-bottom: 1px solid #111;
-        }
+        .loading-indicator { text-align: center; padding: 20px; color: var(--dim); grid-column: 1 / -1; font-size: 10px; letter-spacing: 1px; }
+        .error-message { text-align: center; padding: 40px; color: #ff3b30; font-size: 12px; }
     </style>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
-    const { useState, useEffect, useMemo, useRef } = React;
+    const { useState, useEffect, useMemo, useRef, useCallback } = React;
     const TMDB_KEY = "de64f1a0ec293cfecd070f307f9b2e7e";
     const OMDB_KEY = "f7dac8ab";
     const ALL_TAGS = ['QUEER', 'SPOOKY', 'XMAS', 'AWARDS'];
+
+    // Función para filtrar contenido no deseado (anime, infantil, asiático)
+    const filterUnwantedContent = (item, isMovie = true) => {
+        const title = ((isMovie ? item.title : item.name) || '').toLowerCase();
+        const originalLang = item.original_language;
+        
+        // Excluir idiomas no occidentales
+        if (originalLang === 'ja' || originalLang === 'ko' || originalLang === 'zh' || originalLang === 'hi') return false;
+        
+        // Palabras clave de contenido no deseado
+        const unwantedKeywords = [
+            'anime', 'sponge', 'spongebob', 'tom and jerry', 'kiki', 'panda', 
+            'pokemon', 'doraemon', 'dragon ball', 'naruto', 'one piece', 
+            'studio ghibli', 'miyazaki', 'children', 'kids', 'cartoon', 
+            'disney', 'pixar', 'dreamworks', 'illumination', 'bluey', 
+            'peppa', 'barbie', 'bob esponja', 'kung fu panda', 'shrek'
+        ];
+        
+        for (const keyword of unwantedKeywords) {
+            if (title.includes(keyword)) return false;
+        }
+        
+        return true;
+    };
 
     function App() {
         const [activeTab, setActiveTab] = useState('watchlist');
         const [query, setQuery] = useState('');
         const [results, setResults] = useState([]);
+        const [searchPage, setSearchPage] = useState(1);
+        const [isSearching, setIsSearching] = useState(false);
+        const [hasMoreSearch, setHasMoreSearch] = useState(true);
+        
+        // Estrenos - usando UPCOMING en lugar de NOW_PLAYING
+        const [upcomingMovies, setUpcomingMovies] = useState([]);
+        const [upcomingSeries, setUpcomingSeries] = useState([]);
+        const [loadingEstrenos, setLoadingEstrenos] = useState(false);
+        const [showAllMovies, setShowAllMovies] = useState(false);
+        const [showAllSeries, setShowAllSeries] = useState(false);
+        
+        // SCROLL INFINITO PARA MOVIES
+        const [allMovies, setAllMovies] = useState([]);
+        const [allMoviesPage, setAllMoviesPage] = useState(1);
+        const [allMoviesHasMore, setAllMoviesHasMore] = useState(true);
+        const [loadingAllMovies, setLoadingAllMovies] = useState(false);
+        
+        // SCROLL INFINITO PARA SERIES
+        const [allSeries, setAllSeries] = useState([]);
+        const [allSeriesPage, setAllSeriesPage] = useState(1);
+        const [allSeriesHasMore, setAllSeriesHasMore] = useState(true);
+        const [loadingAllSeries, setLoadingAllSeries] = useState(false);
+        
         const [selected, setSelected] = useState(null);
         const [isEditingExisting, setIsEditingExisting] = useState(false);
         const [isManualAdd, setIsManualAdd] = useState(false);
@@ -224,6 +307,7 @@
         const [isUpcomingManual, setIsUpcomingManual] = useState(false);
         const [searchActiveTags, setSearchActiveTags] = useState([]);
         const [thoughts, setThoughts] = useState('');
+        const [detailError, setDetailError] = useState(false);
         
         const [viewWatchlist, setViewWatchlist] = useState('grid');
         const [viewUpcoming, setViewUpcoming] = useState('list');
@@ -243,11 +327,237 @@
         const dragContainerRef = useRef(null);
         const fileInputRef = useRef(null);
         
-        // Refs para swipe tracking
         const swipeStartX = useRef(0);
         const swipeStartY = useRef(0);
         const isSwiping = useRef(false);
+        const lastTapRef = useRef(0);
+        
+        const handleDoubleTap = (e) => {
+            const now = Date.now();
+            if (now - lastTapRef.current < 300) e.target.select();
+            lastTapRef.current = now;
+        };
 
+        const handleSearchNavClick = () => {
+            setShowAllMovies(false);
+            setShowAllSeries(false);
+            setQuery('');
+            setResults([]);
+            setActiveTab('search');
+        };
+
+        // Cargar estrenos (upcoming movies y series que se estrenan pronto)
+        useEffect(() => {
+            if (activeTab === 'search' && query.length === 0 && upcomingMovies.length === 0) {
+                fetchEstrenos();
+            }
+        }, [activeTab, query]);
+        
+        const fetchEstrenos = async () => {
+            if (loadingEstrenos) return;
+            setLoadingEstrenos(true);
+            try {
+                // Películas próximas a estrenar (upcoming)
+                const moviesRes = await fetch(`https://api.themoviedb.org/3/movie/upcoming?api_key=${TMDB_KEY}&language=en-US&page=1`);
+                const moviesData = await moviesRes.json();
+                const filteredMovies = moviesData.results.filter(item => filterUnwantedContent(item, true));
+                setUpcomingMovies(filteredMovies.slice(0, 20));
+                
+                // Series que se estrenan hoy o próximamente (on_the_air + filtro de fecha)
+                const seriesRes = await fetch(`https://api.themoviedb.org/3/tv/on_the_air?api_key=${TMDB_KEY}&language=en-US&page=1`);
+                const seriesData = await seriesRes.json();
+                const filteredSeries = seriesData.results.filter(item => filterUnwantedContent(item, false));
+                setUpcomingSeries(filteredSeries.slice(0, 20));
+            } catch (error) {
+                console.error("Error fetching estrenos:", error);
+            } finally {
+                setLoadingEstrenos(false);
+            }
+        };
+        
+        // Cargar más películas (scroll infinito) - también usando upcoming
+        const fetchMoreMovies = async () => {
+            if (loadingAllMovies || !allMoviesHasMore) return;
+            setLoadingAllMovies(true);
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/movie/upcoming?api_key=${TMDB_KEY}&language=en-US&page=${allMoviesPage}`);
+                const data = await res.json();
+                const newMovies = data.results.filter(item => filterUnwantedContent(item, true));
+                setAllMovies(prev => [...prev, ...newMovies]);
+                setAllMoviesHasMore(allMoviesPage < data.total_pages);
+                setAllMoviesPage(prev => prev + 1);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoadingAllMovies(false);
+            }
+        };
+        
+        // Cargar más series (scroll infinito)
+        const fetchMoreSeries = async () => {
+            if (loadingAllSeries || !allSeriesHasMore) return;
+            setLoadingAllSeries(true);
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/tv/on_the_air?api_key=${TMDB_KEY}&language=en-US&page=${allSeriesPage}`);
+                const data = await res.json();
+                const newSeries = data.results.filter(item => filterUnwantedContent(item, false));
+                setAllSeries(prev => [...prev, ...newSeries]);
+                setAllSeriesHasMore(allSeriesPage < data.total_pages);
+                setAllSeriesPage(prev => prev + 1);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoadingAllSeries(false);
+            }
+        };
+        
+        const handleMoreMovies = () => {
+            setAllMovies([]);
+            setAllMoviesPage(1);
+            setAllMoviesHasMore(true);
+            setShowAllMovies(true);
+            fetchMoreMovies();
+        };
+        
+        const handleMoreSeries = () => {
+            setAllSeries([]);
+            setAllSeriesPage(1);
+            setAllSeriesHasMore(true);
+            setShowAllSeries(true);
+            fetchMoreSeries();
+        };
+        
+        const volverAEstrenos = () => {
+            setShowAllMovies(false);
+            setShowAllSeries(false);
+        };
+        
+        // Scroll infinito para vista grid de películas
+        const handleMoviesScroll = useCallback((e) => {
+            if (!showAllMovies) return;
+            const target = e.target;
+            const bottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 200;
+            if (bottom && !loadingAllMovies && allMoviesHasMore) {
+                fetchMoreMovies();
+            }
+        }, [showAllMovies, loadingAllMovies, allMoviesHasMore]);
+        
+        const handleSeriesScroll = useCallback((e) => {
+            if (!showAllSeries) return;
+            const target = e.target;
+            const bottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 200;
+            if (bottom && !loadingAllSeries && allSeriesHasMore) {
+                fetchMoreSeries();
+            }
+        }, [showAllSeries, loadingAllSeries, allSeriesHasMore]);
+        
+        const handleSearchScroll = useCallback((e) => {
+            if (activeTab !== 'search') return;
+            if (query.length <= 2) return;
+            const target = e.target;
+            const bottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 100;
+            if (bottom && !isSearching && hasMoreSearch && query.length > 2) {
+                const nextPage = searchPage + 1;
+                setSearchPage(nextPage);
+                fetchSearchEnhanced(nextPage, false);
+            }
+        }, [activeTab, query, isSearching, hasMoreSearch, searchPage]);
+        
+        const handleMainScroll = useCallback((e) => {
+            handleSearchScroll(e);
+            handleMoviesScroll(e);
+            handleSeriesScroll(e);
+        }, [handleSearchScroll, handleMoviesScroll, handleSeriesScroll]);
+        
+        useEffect(() => {
+            const contentEl = document.querySelector('.content');
+            if (contentEl) {
+                contentEl.addEventListener('scroll', handleMainScroll);
+                return () => contentEl.removeEventListener('scroll', handleMainScroll);
+            }
+        }, [handleMainScroll]);
+
+        // Búsqueda
+        useEffect(() => {
+            if (query.length > 2) {
+                setResults([]);
+                setSearchPage(1);
+                setHasMoreSearch(true);
+                fetchSearchEnhanced(1, true);
+            } else if (query.length === 0) {
+                setResults([]);
+                setSearchPage(1);
+                setHasMoreSearch(true);
+            }
+        }, [query]);
+        
+        const fetchSearchEnhanced = async (page, reset = false) => {
+            if (isSearching) return;
+            if (!hasMoreSearch && !reset) return;
+            
+            setIsSearching(true);
+            try {
+                const resMulti = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}&page=${page}`);
+                const dataMulti = await resMulti.json();
+                
+                let titleResults = dataMulti.results.filter(i => (i.media_type === 'movie' || i.media_type === 'tv'));
+                titleResults = titleResults.filter(i => filterUnwantedContent(i, i.media_type === 'movie'));
+                
+                let personResults = [];
+                if (page === 1) {
+                    const resPerson = await fetch(`https://api.themoviedb.org/3/search/person?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}`);
+                    const dataPerson = await resPerson.json();
+                    for (const person of dataPerson.results.slice(0, 5)) {
+                        const resCredits = await fetch(`https://api.themoviedb.org/3/person/${person.id}/combined_credits?api_key=${TMDB_KEY}`);
+                        const creditsData = await resCredits.json();
+                        const knownWorks = creditsData.cast?.slice(0, 3) || [];
+                        knownWorks.forEach(work => {
+                            if ((work.media_type === 'movie' || work.media_type === 'tv') && filterUnwantedContent(work, work.media_type === 'movie')) {
+                                personResults.push({
+                                    ...work,
+                                    media_type: work.media_type,
+                                    searchMatch: `👤 ${person.name}`,
+                                    personName: person.name
+                                });
+                            }
+                        });
+                    }
+                }
+                
+                let allResults = [...titleResults, ...personResults];
+                const uniqueResults = [];
+                const seenIds = new Set();
+                for (const item of allResults) {
+                    if (!seenIds.has(item.id)) {
+                        seenIds.add(item.id);
+                        uniqueResults.push(item);
+                    }
+                }
+                
+                const sortedResults = uniqueResults.sort((a, b) => {
+                    const titleA = (a.title || a.name || '').toLowerCase();
+                    const titleB = (b.title || b.name || '').toLowerCase();
+                    const queryLower = query.toLowerCase();
+                    const exactA = titleA === queryLower ? 1 : 0;
+                    const exactB = titleB === queryLower ? 1 : 0;
+                    if (exactA !== exactB) return exactB - exactA;
+                    const yearA = parseInt(getYear(a)) || 0;
+                    const yearB = parseInt(getYear(b)) || 0;
+                    return yearB - yearA;
+                });
+                
+                if (reset) setResults(sortedResults);
+                else setResults(prev => [...prev, ...sortedResults]);
+                
+                setHasMoreSearch(page < dataMulti.total_pages);
+            } catch (error) {
+                console.error("Error en búsqueda:", error);
+            } finally {
+                setIsSearching(false);
+            }
+        };
+
+        // Cargar datos guardados
         useEffect(() => {
             const saved = localStorage.getItem('peep_watchlist_v2');
             if (saved) setWatchlist(JSON.parse(saved));
@@ -264,20 +574,14 @@
         useEffect(() => { localStorage.setItem('peep_history_v2', JSON.stringify(history)); }, [history]);
 
         const downloadBackup = () => {
-            const backupData = {
-                watchlist: watchlist,
-                upcoming: upcoming,
-                history: history.map(h => ({ ...h, watchedDate: h.watchedDate.toISOString() }))
-            };
+            const backupData = { watchlist, upcoming, history: history.map(h => ({ ...h, watchedDate: h.watchedDate.toISOString() })) };
             const dataStr = JSON.stringify(backupData, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = `peep_backup_${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
             a.click();
-            document.body.removeChild(a);
             URL.revokeObjectURL(url);
         };
 
@@ -290,24 +594,17 @@
                     const backupData = JSON.parse(e.target.result);
                     if (backupData.watchlist) setWatchlist(backupData.watchlist);
                     if (backupData.upcoming) setUpcoming(backupData.upcoming);
-                    if (backupData.history) {
-                        setHistory(backupData.history.map(h => ({ ...h, watchedDate: new Date(h.watchedDate) })));
-                    }
+                    if (backupData.history) setHistory(backupData.history.map(h => ({ ...h, watchedDate: new Date(h.watchedDate) })));
                     alert('✅ Backup restaurado correctamente');
                     setFilterPanel(null);
-                } catch (error) {
-                    alert('❌ Error al restaurar: archivo no válido');
-                }
+                } catch (error) { alert('❌ Error al restaurar'); }
             };
             reader.readAsText(file);
             event.target.value = '';
         };
 
         const exportDiaryCSV = () => {
-            if (history.length === 0) {
-                alert('No hay entradas en el Diary para exportar');
-                return;
-            }
+            if (history.length === 0) { alert('No hay entradas'); return; }
             const headers = ['Estado', 'Título', 'Tipo', 'Fecha de visto', 'Calificación', 'Etiquetas', 'Notas'];
             const rows = history.map(entry => {
                 const isFromUpcoming = upcoming.some(u => u.id === entry.id);
@@ -315,94 +612,31 @@
                 if (isFromUpcoming) estado = 'Upcoming';
                 const estrellas = entry.rating ? '★'.repeat(entry.rating) : 'Sin calificar';
                 const etiquetas = entry.tags ? entry.tags.map(t => t.toUpperCase()).join(', ') : '';
-                const fechaVisto = entry.watchedDate instanceof Date ? entry.watchedDate.toLocaleDateString('es-ES') : new Date(entry.watchedDate).toLocaleDateString('es-ES');
-                return [
-                    estado,
-                    entry.title || entry.displayTitle || 'Sin título',
-                    entry.type || (entry.media_type === 'movie' ? 'movie' : 'tv show'),
-                    fechaVisto,
-                    estrellas,
-                    etiquetas,
-                    entry.notes || entry.userThoughts || ''
-                ];
+                const fechaVisto = new Date(entry.watchedDate).toLocaleDateString('es-ES');
+                return [estado, entry.title || 'Sin título', entry.type || 'movie', fechaVisto, estrellas, etiquetas, entry.notes || ''];
             });
-            const csvContent = [headers, ...rows]
-                .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
-                .join('\n');
+            const csvContent = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
             const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = `peep_diary_${new Date().toISOString().split('T')[0]}.csv`;
-            document.body.appendChild(a);
             a.click();
-            document.body.removeChild(a);
             URL.revokeObjectURL(url);
         };
 
+        // Auto mover upcoming a watchlist
         useEffect(() => {
             const today = new Date();
-            let changed = false;
-            const stillUpcoming = [];
-            const nowReleased = [];
+            const still = [];
+            const released = [];
             upcoming.forEach(item => {
-                const releaseDate = item.release_date || item.first_air_date;
-                if (!item.isManualOverride && releaseDate && releaseDate.length >= 8 && new Date(releaseDate) <= today) {
-                    changed = true;
-                    nowReleased.push({...item, status: 'released'});
-                } else {
-                    stillUpcoming.push(item);
-                }
+                const rd = item.release_date || item.first_air_date;
+                if (!item.isManualOverride && rd && rd.length >= 8 && new Date(rd) <= today) released.push({...item, status: 'released'});
+                else still.push(item);
             });
-            if (changed) {
-                setUpcoming(stillUpcoming);
-                setWatchlist(prev => [...nowReleased, ...prev]);
-            }
+            if (released.length) { setUpcoming(still); setWatchlist(prev => [...released, ...prev]); }
         }, []);
-
-        useEffect(() => {
-            const timer = setTimeout(() => { if (query.length > 2) fetchSearchEnhanced(); else if (query.length === 0) setResults([]); }, 500);
-            return () => clearTimeout(timer);
-        }, [query]);
-
-        const fetchSearchEnhanced = async () => {
-            try {
-                const resMulti = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}`);
-                const dataMulti = await resMulti.json();
-                const titleResults = dataMulti.results.filter(i => i.media_type === 'movie' || i.media_type === 'tv');
-                const resPerson = await fetch(`https://api.themoviedb.org/3/search/person?api_key=${TMDB_KEY}&query=${encodeURIComponent(query)}`);
-                const dataPerson = await resPerson.json();
-                const personResults = [];
-                for (const person of dataPerson.results.slice(0, 5)) {
-                    const resCredits = await fetch(`https://api.themoviedb.org/3/person/${person.id}/combined_credits?api_key=${TMDB_KEY}`);
-                    const creditsData = await resCredits.json();
-                    const knownWorks = creditsData.cast?.slice(0, 3) || [];
-                    knownWorks.forEach(work => {
-                        if (work.media_type === 'movie' || work.media_type === 'tv') {
-                            personResults.push({
-                                ...work,
-                                media_type: work.media_type,
-                                searchMatch: `👤 ${person.name}`,
-                                personName: person.name
-                            });
-                        }
-                    });
-                }
-                const allResults = [...titleResults, ...personResults];
-                const uniqueResults = [];
-                const seenIds = new Set();
-                for (const item of allResults) {
-                    if (!seenIds.has(item.id)) {
-                        seenIds.add(item.id);
-                        uniqueResults.push(item);
-                    }
-                }
-                setResults(uniqueResults);
-            } catch (error) {
-                console.error("Error en búsqueda:", error);
-                setResults([]);
-            }
-        };
 
         const getYear = (item) => {
             const date = item.release_date || item.first_air_date || item.date;
@@ -410,6 +644,8 @@
         };
 
         const openDetail = async (item, isEditing = false, existingItem = null, isManual = false) => {
+            setDetailError(false);
+            
             if (isManual) {
                 setIsManualAdd(true);
                 setIsEditingExisting(false);
@@ -444,105 +680,73 @@
             setThoughts(item.userThoughts || '');
             setSearchActiveTags(item.tags || []);
             setMeta({ dir: '...', cast: '...', rt: '—', imdb: '—', pop: '—', seasons: null });
+            
             const type = item.media_type === 'movie' ? 'movie' : 'tv';
             try {
                 const resDetail = await fetch(`https://api.themoviedb.org/3/${type}/${item.id}?api_key=${TMDB_KEY}`);
+                if (!resDetail.ok) throw new Error('Movie/TV not found');
                 const d = await resDetail.json();
-                setMeta(prev => ({ ...prev, seasons: d.number_of_seasons || null }));
+                setMeta(p => ({ ...p, seasons: d.number_of_seasons || null }));
+                
                 const resCredits = await fetch(`https://api.themoviedb.org/3/${type}/${item.id}/credits?api_key=${TMDB_KEY}`);
                 const credits = await resCredits.json();
                 const dir = type === 'movie' ? credits.crew?.find(p => p.job === 'Director')?.name : credits.crew?.find(p => p.job === 'Executive Producer')?.name;
-                setMeta(prev => ({ ...prev, dir: dir || 'Unknown', cast: credits.cast?.slice(0,4).map(c=>c.name).join(', ') || 'N/A' }));
+                setMeta(p => ({ ...p, dir: dir || 'Unknown', cast: credits.cast?.slice(0,4).map(c=>c.name).join(', ') || 'N/A' }));
+                
                 const resExt = await fetch(`https://api.themoviedb.org/3/${type}/${item.id}/external_ids?api_key=${TMDB_KEY}`);
-                const ext = await resExt.json();
-                if (ext.imdb_id) {
-                    const resOmdb = await fetch(`https://www.omdbapi.com/?i=${ext.imdb_id}&apikey=${OMDB_KEY}`);
-                    const om = await resOmdb.json();
-                    const rt = om.Ratings?.find(r => r.Source === "Rotten Tomatoes")?.Value || '—';
-                    const imdb = om.imdbRating !== "N/A" ? om.imdbRating : (item.vote_average?.toFixed(1) || '—');
-                    const pop = om.Metascore !== "N/A" ? `${om.Metascore}%` : `${Math.round(item.vote_average * 10)}%`;
-                    setMeta(prev => ({ ...prev, rt, imdb, pop }));
+                if (resExt.ok) {
+                    const ext = await resExt.json();
+                    if (ext.imdb_id) {
+                        const resOmdb = await fetch(`https://www.omdbapi.com/?i=${ext.imdb_id}&apikey=${OMDB_KEY}`);
+                        const om = await resOmdb.json();
+                        setMeta(p => ({ ...p, rt: om.Ratings?.find(r => r.Source === "Rotten Tomatoes")?.Value || '—', imdb: om.imdbRating !== "N/A" ? om.imdbRating : (item.vote_average?.toFixed(1) || '—'), pop: om.Metascore !== "N/A" ? `${om.Metascore}%` : `${Math.round(item.vote_average * 10)}%` }));
+                    } else {
+                        setMeta(p => ({ ...p, imdb: item.vote_average?.toFixed(1) || '—', pop: `${Math.round(item.vote_average * 10)}%` }));
+                    }
                 } else {
-                    setMeta(prev => ({ ...prev, imdb: item.vote_average?.toFixed(1) || '—', pop: `${Math.round(item.vote_average * 10)}%` }));
+                    setMeta(p => ({ ...p, imdb: item.vote_average?.toFixed(1) || '—', pop: `${Math.round(item.vote_average * 10)}%` }));
                 }
-            } catch (e) { console.log("Error fetching details:", e); }
+            } catch (e) {
+                console.log("Error fetching details:", e);
+                setDetailError(true);
+            }
         };
 
         const handleSave = () => {
             if (isManualAdd) {
                 const newItem = {
-                    id: Date.now(),
-                    displayTitle: customTitle,
-                    displayPoster: customPoster,
-                    poster: customPoster,
-                    title: customTitle,
-                    type: 'movie',
-                    status: isUpcomingManual ? 'upcoming' : 'released',
-                    isManualOverride: isUpcomingManual,
-                    addedAt: new Date().toISOString(),
-                    tags: searchActiveTags.map(t => t.toLowerCase()),
-                    userThoughts: thoughts,
-                    notes: thoughts,
-                    date: new Date().toISOString().substring(0,10),
-                    media_type: 'movie'
+                    id: Date.now(), displayTitle: customTitle, displayPoster: customPoster, poster: customPoster, title: customTitle,
+                    type: 'movie', status: isUpcomingManual ? 'upcoming' : 'released', isManualOverride: isUpcomingManual,
+                    addedAt: new Date().toISOString(), tags: searchActiveTags.map(t => t.toLowerCase()), notes: thoughts,
+                    date: new Date().toISOString().substring(0,10), media_type: 'movie'
                 };
-                if (isUpcomingManual) setUpcoming(prev => [newItem, ...prev]);
-                else setWatchlist(prev => [newItem, ...prev]);
-                setSelected(null);
-                setIsManualAdd(false);
-                setActiveTab(isUpcomingManual ? 'upcoming' : 'watchlist');
+                if (isUpcomingManual) setUpcoming(p => [newItem, ...p]);
+                else setWatchlist(p => [newItem, ...p]);
+                setSelected(null); setIsManualAdd(false); setActiveTab(isUpcomingManual ? 'upcoming' : 'watchlist');
                 return;
             }
             if (isEditingExisting && selected) {
-                const updatedItem = {
-                    ...selected,
-                    displayTitle: customTitle,
-                    displayPoster: customPoster,
-                    poster: customPoster,
-                    title: customTitle,
-                    tags: searchActiveTags.map(t => t.toLowerCase()),
-                    notes: thoughts,
-                    userThoughts: thoughts
-                };
-                if (selected.status === 'upcoming' || isUpcomingManual) {
-                    setUpcoming(prev => prev.map(item => item.id === selected.id ? { ...updatedItem, status: 'upcoming' } : item));
-                } else {
-                    setWatchlist(prev => prev.map(item => item.id === selected.id ? updatedItem : item));
-                }
-                setSelected(null);
-                setIsEditingExisting(false);
+                const updated = { ...selected, displayTitle: customTitle, displayPoster: customPoster, poster: customPoster, title: customTitle, tags: searchActiveTags.map(t => t.toLowerCase()), notes: thoughts };
+                if (selected.status === 'upcoming' || isUpcomingManual) setUpcoming(p => p.map(i => i.id === selected.id ? { ...updated, status: 'upcoming' } : i));
+                else setWatchlist(p => p.map(i => i.id === selected.id ? updated : i));
+                setSelected(null); setIsEditingExisting(false);
                 return;
             }
             const newItem = {
-                ...selected,
-                displayTitle: customTitle,
-                displayPoster: customPoster,
-                poster: customPoster,
-                title: customTitle,
-                type: selected.media_type === 'movie' ? 'movie' : 'tv show',
-                status: isUpcomingManual ? 'upcoming' : 'released',
-                isManualOverride: isUpcomingManual,
-                addedAt: new Date().toISOString(),
-                tags: searchActiveTags.map(t => t.toLowerCase()),
-                userThoughts: thoughts,
-                notes: thoughts,
-                date: selected.release_date || selected.first_air_date || new Date().toISOString().substring(0,10),
+                ...selected, displayTitle: customTitle, displayPoster: customPoster, poster: customPoster, title: customTitle,
+                type: selected.media_type === 'movie' ? 'movie' : 'tv show', status: isUpcomingManual ? 'upcoming' : 'released',
+                isManualOverride: isUpcomingManual, addedAt: new Date().toISOString(), tags: searchActiveTags.map(t => t.toLowerCase()),
+                notes: thoughts, date: selected.release_date || selected.first_air_date || new Date().toISOString().substring(0,10)
             };
-            if (isUpcomingManual) {
-                setUpcoming(prev => [newItem, ...prev.filter(i => i.id !== newItem.id)]);
-                setWatchlist(prev => prev.filter(i => i.id !== newItem.id));
-            } else {
-                setWatchlist(prev => [newItem, ...prev.filter(i => i.id !== newItem.id)]);
-                setUpcoming(prev => prev.filter(i => i.id !== newItem.id));
-            }
-            setSelected(null);
-            setActiveTab(isUpcomingManual ? 'upcoming' : 'watchlist');
+            if (isUpcomingManual) { setUpcoming(p => [newItem, ...p.filter(i => i.id !== newItem.id)]); setWatchlist(p => p.filter(i => i.id !== newItem.id)); }
+            else { setWatchlist(p => [newItem, ...p.filter(i => i.id !== newItem.id)]); setUpcoming(p => p.filter(i => i.id !== newItem.id)); }
+            setSelected(null); setActiveTab(isUpcomingManual ? 'upcoming' : 'watchlist');
         };
 
         const processedWatchlist = useMemo(() => {
             let data = [...watchlist];
             if (activeType) data = data.filter(i => i.type === activeType);
-            if (selectedTags.length > 0) data = data.filter(i => i.tags && i.tags.some(t => selectedTags.includes(t.toLowerCase())));
+            if (selectedTags.length) data = data.filter(i => i.tags?.some(t => selectedTags.includes(t.toLowerCase())));
             if (sortWatchlist === 'A-Z') data.sort((a,b) => (a.title||'').localeCompare(b.title||''));
             if (sortWatchlist === 'RECENT') data.sort((a,b) => new Date(b.addedAt||b.date||0) - new Date(a.addedAt||a.date||0));
             return data;
@@ -551,11 +755,7 @@
         const processedUpcoming = useMemo(() => {
             let data = [...upcoming];
             if (sortUpcoming === 'A-Z') data.sort((a,b) => (a.title||'').localeCompare(b.title||''));
-            if (sortUpcoming === 'DATE') data.sort((a,b) => {
-                const dateA = a.release_date || a.first_air_date || a.date || '9999';
-                const dateB = b.release_date || b.first_air_date || b.date || '9999';
-                return dateA.localeCompare(dateB);
-            });
+            if (sortUpcoming === 'DATE') data.sort((a,b) => (a.release_date || a.first_air_date || a.date || '9999').localeCompare(b.release_date || b.first_air_date || b.date || '9999'));
             return data;
         }, [upcoming, sortUpcoming]);
 
@@ -568,16 +768,13 @@
         }, [history, sortDiary]);
 
         useEffect(() => {
-            if (dragContainerRef.current && activeTab === 'watchlist' && sortWatchlist === 'CUSTOM' && !activeType && selectedTags.length === 0 && viewWatchlist === 'list') {
-                const sortable = new Sortable(dragContainerRef.current, {
-                    animation: 200, delay: 150,
-                    onEnd: (evt) => {
-                        const newItems = [...watchlist];
-                        const [movedItem] = newItems.splice(evt.oldIndex, 1);
-                        newItems.splice(evt.newIndex, 0, movedItem);
-                        setWatchlist(newItems);
-                    }
-                });
+            if (dragContainerRef.current && activeTab === 'watchlist' && sortWatchlist === 'CUSTOM' && !activeType && !selectedTags.length && viewWatchlist === 'list') {
+                const sortable = new Sortable(dragContainerRef.current, { animation: 200, delay: 150, onEnd: (evt) => {
+                    const newItems = [...watchlist];
+                    const [moved] = newItems.splice(evt.oldIndex, 1);
+                    newItems.splice(evt.newIndex, 0, moved);
+                    setWatchlist(newItems);
+                }});
                 return () => sortable.destroy();
             }
         }, [activeTab, viewWatchlist, watchlist, sortWatchlist, activeType, selectedTags]);
@@ -595,108 +792,112 @@
         }, [processedDiary]);
 
         const confirmRating = (stars) => {
-            const isExisting = history.some(h => h.historyId === ratingItem.historyId);
-            if (isExisting) {
-                setHistory(prev => prev.map(h => h.historyId === ratingItem.historyId ? {...h, rating: stars} : h));
-            } else {
-                const historyId = Date.now();
-                setHistory(prev => [{...ratingItem, historyId, watchedDate: new Date(), rating: stars}, ...prev]);
-                setWatchlist(prev => prev.filter(i => i.id !== ratingItem.id));
-                setActiveTab('diary');
-            }
+            const exists = history.some(h => h.historyId === ratingItem.historyId);
+            if (exists) setHistory(p => p.map(h => h.historyId === ratingItem.historyId ? {...h, rating: stars} : h));
+            else { setHistory(p => [{...ratingItem, historyId: Date.now(), watchedDate: new Date(), rating: stars}, ...p]); setWatchlist(p => p.filter(i => i.id !== ratingItem.id)); setActiveTab('diary'); }
             setRatingItem(null);
         };
 
         const toggleTagInItem = (tag) => {
-            const lowerTag = tag.toLowerCase();
-            setWatchlist(prev => prev.map(item => {
+            const lower = tag.toLowerCase();
+            setWatchlist(p => p.map(item => {
                 if (item.id === editingItem.id) {
-                    const newTags = item.tags.includes(lowerTag) ? item.tags.filter(t => t !== lowerTag) : [...item.tags, lowerTag];
-                    const updated = { ...item, tags: newTags };
-                    setEditingItem(updated);
-                    return updated;
+                    const newTags = item.tags.includes(lower) ? item.tags.filter(t => t !== lower) : [...item.tags, lower];
+                    setEditingItem({ ...item, tags: newTags });
+                    return { ...item, tags: newTags };
                 }
                 return item;
             }));
         };
 
         const updateItemType = (newType) => {
-            setWatchlist(prev => prev.map(item => item.id === editingItem.id ? { ...item, type: newType } : item));
-            setEditingItem(prev => ({ ...prev, type: newType }));
+            setWatchlist(p => p.map(item => item.id === editingItem.id ? { ...item, type: newType } : item));
+            setEditingItem(p => ({ ...p, type: newType }));
         };
 
-        const updateNotes = (newNotes) => {
-            setWatchlist(prev => prev.map(item => item.id === editingItem.id ? { ...item, notes: newNotes } : item));
-            setEditingItem(prev => ({ ...prev, notes: newNotes }));
+        const updateNotes = (notes) => {
+            setWatchlist(p => p.map(item => item.id === editingItem.id ? { ...item, notes } : item));
+            setEditingItem(p => ({ ...p, notes }));
         };
 
-        // SWIPE FUNCTIONS MEJORADAS - Detectan dirección para no bloquear scroll
         const onSwipeTouchStart = (e) => {
             swipeStartX.current = e.touches[0].clientX;
             swipeStartY.current = e.touches[0].clientY;
             isSwiping.current = false;
-            const el = e.currentTarget;
-            el.style.transition = 'none';
-            el.style.transform = 'translateX(0px)';
+            e.currentTarget.style.transition = 'none';
+            e.currentTarget.style.transform = 'translateX(0px)';
         };
 
         const onSwipeTouchMove = (e) => {
             const diffX = e.touches[0].clientX - swipeStartX.current;
             const diffY = Math.abs(e.touches[0].clientY - swipeStartY.current);
-            
-            // Si el movimiento es mayormente vertical (scroll), no interferir
-            if (diffY > Math.abs(diffX) && !isSwiping.current) {
-                return;
-            }
-            
-            // Si no se ha iniciado swipe y el movimiento horizontal es suficiente, iniciar swipe
-            if (!isSwiping.current && Math.abs(diffX) > 10) {
-                isSwiping.current = true;
-                e.preventDefault();
-            }
-            
+            if (diffY > Math.abs(diffX) && !isSwiping.current) return;
+            if (!isSwiping.current && Math.abs(diffX) > 10) { isSwiping.current = true; e.preventDefault(); }
             if (isSwiping.current) {
                 e.preventDefault();
-                const moveX = Math.max(Math.min(diffX, 0), -120);
-                e.currentTarget.style.transform = `translateX(${moveX}px)`;
+                e.currentTarget.style.transform = `translateX(${Math.max(Math.min(diffX, 0), -120)}px)`;
             }
         };
 
         const onSwipeTouchEnd = (e) => {
-            const el = e.currentTarget;
-            const transform = el.style.transform;
+            const transform = e.currentTarget.style.transform;
             const diff = transform === 'none' ? 0 : parseFloat(transform.replace('translateX(', '').replace('px)', '')) || 0;
-            el.style.transition = 'transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28)';
-            
-            if (diff < -60) {
-                el.style.transform = 'translateX(-120px)';
-            } else {
-                el.style.transform = 'translateX(0px)';
-            }
-            
+            e.currentTarget.style.transition = 'transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28)';
+            e.currentTarget.style.transform = diff < -60 ? 'translateX(-120px)' : 'translateX(0px)';
             isSwiping.current = false;
         };
 
-        const resetSwipe = (e) => { 
-            if (e.currentTarget) { 
-                e.currentTarget.style.transform = 'translateX(0px)'; 
-                e.currentTarget.style.transition = 'transform 0.3s ease-out'; 
-            } 
-        };
-        
-        const deleteFromWatchlist = (item) => setWatchlist(prev => prev.filter(i => i.id !== item.id));
+        const resetSwipe = (e) => { if (e.currentTarget) { e.currentTarget.style.transform = 'translateX(0px)'; e.currentTarget.style.transition = 'transform 0.3s ease-out'; } };
+        const deleteFromWatchlist = (item) => setWatchlist(p => p.filter(i => i.id !== item.id));
         const markAsSeen = (item) => setRatingItem(item);
-        const deleteFromUpcoming = (item) => setUpcoming(prev => prev.filter(i => i.id !== item.id));
-        const deleteFromDiary = (historyId) => setHistory(prev => prev.filter(h => h.historyId !== historyId));
+        const deleteFromUpcoming = (item) => setUpcoming(p => p.filter(i => i.id !== item.id));
+        const deleteFromDiary = (id) => setHistory(p => p.filter(h => h.historyId !== id));
         const moveBackToWatchlist = (entry) => {
             const { historyId, watchedDate, rating, day, ...rest } = entry;
-            setWatchlist(prev => [rest, ...prev]);
-            setHistory(prev => prev.filter(h => h.historyId !== historyId));
+            setWatchlist(p => [rest, ...p]);
+            setHistory(p => p.filter(h => h.historyId !== historyId));
+        };
+
+        // Render estrenos horizontales
+        const renderEstrenosHorizontales = () => {
+            if (loadingEstrenos) return <div className="loading-indicator">Loading releases...</div>;
+            
+            const filteredMovies = upcomingMovies.filter(item => filterUnwantedContent(item, true));
+            const filteredSeries = upcomingSeries.filter(item => filterUnwantedContent(item, false));
+            
+            return (
+                <>
+                    <div className="section-row">
+                        <div className="section-header-row">
+                            <span className="section-title">MOVIE RELEASES</span>
+                            <button className="more-btn" onClick={handleMoreMovies}>MORE</button>
+                        </div>
+                        <div className="horizontal-scroll">
+                            {filteredMovies.map(item => (
+                                <img key={`movie-${item.id}`} src={item.poster_path ? `https://image.tmdb.org/t/p/w200${item.poster_path}` : 'https://placehold.co/200x300/111/333?text=No+Poster'} className="estreno-poster" onClick={() => openDetail(item)} />
+                            ))}
+                        </div>
+                    </div>
+                    <div className="section-row">
+                        <div className="section-header-row">
+                            <span className="section-title">TV SERIES RELEASES</span>
+                            <button className="more-btn" onClick={handleMoreSeries}>MORE</button>
+                        </div>
+                        <div className="horizontal-scroll">
+                            {filteredSeries.map(item => (
+                                <img key={`series-${item.id}`} src={item.poster_path ? `https://image.tmdb.org/t/p/w200${item.poster_path}` : 'https://placehold.co/200x300/111/333?text=No+Poster'} className="estreno-poster" onClick={() => openDetail({...item, media_type: 'tv'})} />
+                            ))}
+                        </div>
+                    </div>
+                </>
+            );
         };
 
         return (
             <div className="app-container">
-                <header className="header"><img src="peep-logo.png" className="logo" alt="Peep" /></header>
+                <header className="header">
+                    <img src="peep-logo.png" className="logo" alt="Peep" />
+                </header>
 
                 {activeTab === 'watchlist' && (
                     <div className="toolbar">
@@ -706,9 +907,9 @@
                         </div>
                         <div className="actions">
                             <button className={`icon-btn ${filterPanel === 'sort' ? 'active' : ''}`} onClick={() => setFilterPanel(filterPanel === 'sort' ? null : 'sort')}><div className="sort-icon"><span>↑</span><span>↓</span></div></button>
-                            <button className={`icon-btn ${filterPanel === 'tags' ? 'active' : ''}`} onClick={() => setFilterPanel(filterPanel === 'tags' ? null : 'tags')}><i className="ph-bold ph-tag" style={{fontSize: '20px'}}></i></button>
-                            <button className={`icon-btn ${filterPanel === 'settings' ? 'active' : ''}`} onClick={() => setFilterPanel(filterPanel === 'settings' ? null : 'settings')}><i className="ph-bold ph-gear" style={{fontSize: '20px'}}></i></button>
-                            <button className="icon-btn" onClick={() => setViewWatchlist(viewWatchlist === 'grid' ? 'list' : 'grid')}><i className={`ph-bold ${viewWatchlist === 'grid' ? 'ph-list-bullets' : 'ph-squares-four'}`} style={{fontSize: '20px'}}></i></button>
+                            <button className={`icon-btn ${filterPanel === 'tags' ? 'active' : ''}`} onClick={() => setFilterPanel(filterPanel === 'tags' ? null : 'tags')}><i className="ph-bold ph-tag" style={{fontSize:20}}></i></button>
+                            <button className={`icon-btn ${filterPanel === 'settings' ? 'active' : ''}`} onClick={() => setFilterPanel(filterPanel === 'settings' ? null : 'settings')}><i className="ph-bold ph-gear" style={{fontSize:20}}></i></button>
+                            <button className="icon-btn" onClick={() => setViewWatchlist(viewWatchlist === 'grid' ? 'list' : 'grid')}><i className={`ph-bold ${viewWatchlist === 'grid' ? 'ph-list-bullets' : 'ph-squares-four'}`} style={{fontSize:20}}></i></button>
                         </div>
                     </div>
                 )}
@@ -720,7 +921,7 @@
                             <button className={`tab ${sortUpcoming === 'A-Z' ? 'active' : ''}`} onClick={() => setSortUpcoming('A-Z')}>A-Z</button>
                         </div>
                         <div className="actions">
-                            <button className="icon-btn" onClick={() => setViewUpcoming(viewUpcoming === 'grid' ? 'list' : 'grid')}><i className={`ph-bold ${viewUpcoming === 'grid' ? 'ph-list-bullets' : 'ph-squares-four'}`} style={{fontSize: '20px'}}></i></button>
+                            <button className="icon-btn" onClick={() => setViewUpcoming(viewUpcoming === 'grid' ? 'list' : 'grid')}><i className={`ph-bold ${viewUpcoming === 'grid' ? 'ph-list-bullets' : 'ph-squares-four'}`} style={{fontSize:20}}></i></button>
                         </div>
                     </div>
                 )}
@@ -733,17 +934,13 @@
                             <button className={`tab ${sortDiary === 'RATING' ? 'active' : ''}`} onClick={() => setSortDiary('RATING')}>RATING</button>
                         </div>
                         <div className="actions">
-                            <button className="icon-btn" onClick={() => setViewDiary(viewDiary === 'grid' ? 'list' : 'grid')}><i className={`ph-bold ${viewDiary === 'grid' ? 'ph-list-bullets' : 'ph-squares-four'}`} style={{fontSize: '20px'}}></i></button>
+                            <button className="icon-btn" onClick={() => setViewDiary(viewDiary === 'grid' ? 'list' : 'grid')}><i className={`ph-bold ${viewDiary === 'grid' ? 'ph-list-bullets' : 'ph-squares-four'}`} style={{fontSize:20}}></i></button>
                         </div>
                     </div>
                 )}
 
-                {activeTab === 'watchlist' && filterPanel === 'sort' && (
-                    <div className="panel">{['RECENT', 'A-Z', 'CUSTOM'].map(m => <div key={m} className={`pill ${sortWatchlist === m ? 'active' : ''}`} onClick={() => {setSortWatchlist(m); setFilterPanel(null);}}>{m}</div>)}</div>
-                )}
-                {activeTab === 'watchlist' && filterPanel === 'tags' && (
-                    <div className="panel">{ALL_TAGS.map(t => <div key={t} className={`pill ${selectedTags.includes(t.toLowerCase()) ? 'active' : ''}`} onClick={() => setSelectedTags(prev => prev.includes(t.toLowerCase()) ? prev.filter(x => x !== t.toLowerCase()) : [...prev, t.toLowerCase()])}>{t}</div>)}</div>
-                )}
+                {activeTab === 'watchlist' && filterPanel === 'sort' && (<div className="panel">{['RECENT','A-Z','CUSTOM'].map(m => <div key={m} className={`pill ${sortWatchlist === m ? 'active' : ''}`} onClick={() => {setSortWatchlist(m); setFilterPanel(null);}}>{m}</div>)}</div>)}
+                {activeTab === 'watchlist' && filterPanel === 'tags' && (<div className="panel">{ALL_TAGS.map(t => <div key={t} className={`pill ${selectedTags.includes(t.toLowerCase()) ? 'active' : ''}`} onClick={() => setSelectedTags(p => p.includes(t.toLowerCase()) ? p.filter(x => x !== t.toLowerCase()) : [...p, t.toLowerCase()])}>{t}</div>)}</div>)}
                 {activeTab === 'watchlist' && filterPanel === 'settings' && (
                     <div className="panel">
                         <div className="pill" onClick={downloadBackup}>💾 DOWNLOAD</div>
@@ -755,12 +952,15 @@
 
                 {activeTab === 'search' && (
                     <div className="search-header">
-                        <div className="search-bar">
-                            <i className="ph ph-magnifying-glass"></i>
-                            <input placeholder="Search movies, shows, directors or actors..." value={query} onChange={e => setQuery(e.target.value)} autoFocus />
-                            <button className="search-add-btn" onClick={() => openDetail(null, false, null, true)}>
-                                <i className="ph-bold ph-plus"></i>
+                        {(showAllMovies || showAllSeries) && (
+                            <button className="back-arrow-search" onClick={volverAEstrenos}>
+                                <i className="ph-bold ph-arrow-left"></i>
                             </button>
+                        )}
+                        <div className={`search-bar ${(showAllMovies || showAllSeries) ? 'with-arrow' : 'no-arrow'}`}>
+                            <i className="ph ph-magnifying-glass"></i>
+                            <input placeholder="Search movies, shows, directors or actors..." value={query} onChange={e => setQuery(e.target.value)} onDoubleClick={handleDoubleTap} onTouchStart={handleDoubleTap} autoFocus />
+                            <button className="search-add-btn" onClick={() => openDetail(null, false, null, true)}><i className="ph-bold ph-plus"></i></button>
                         </div>
                     </div>
                 )}
@@ -768,29 +968,57 @@
                 <main className="content">
                     {activeTab === 'search' && (
                         <div className="fade-in">
-                            {results.length === 0 && query.length > 2 && <div className="empty-state">No results found. Try another search or tap ➕</div>}
-                            {results.map(i => (
-                                <div key={i.id} className="result-item" onClick={() => openDetail(i, false, null, false)}>
-                                    <img src={i.poster_path ? `https://image.tmdb.org/t/p/w92${i.poster_path}` : 'https://placehold.co/92x138/111/333?text=No+Poster'} className="result-poster" />
-                                    <div className="result-info">
-                                        <div style={{fontWeight:700}}>{i.title || i.name}</div>
-                                        <div className="result-meta">{getYear(i)} • {i.media_type === 'movie' ? 'Movie' : 'TV Series'}{i.searchMatch && <span style={{color: 'var(--accent)', marginLeft: '8px'}}>{i.searchMatch}</span>}</div>
+                            {query.length === 0 ? (
+                                !showAllMovies && !showAllSeries ? renderEstrenosHorizontales() : (
+                                    <div>
+                                        {showAllMovies && (
+                                            <div className="search-results-grid">
+                                                <div className="section-title" style={{gridColumn:'1/-1', marginBottom:10}}>MOVIE RELEASES</div>
+                                                {allMovies.map(item => <div key={`all-${item.id}`} className="movie-card" onClick={() => openDetail(item)}><img src={item.poster_path ? `https://image.tmdb.org/t/p/w200${item.poster_path}` : 'https://placehold.co/200x300/111/333?text=No+Poster'} /></div>)}
+                                                {loadingAllMovies && <div className="loading-indicator">Loading more movies...</div>}
+                                                {!allMoviesHasMore && allMovies.length > 0 && <div className="empty-state">No more movies</div>}
+                                            </div>
+                                        )}
+                                        {showAllSeries && (
+                                            <div className="search-results-grid">
+                                                <div className="section-title" style={{gridColumn:'1/-1', marginBottom:10, marginTop:20}}>TV SERIES RELEASES</div>
+                                                {allSeries.map(item => <div key={`all-${item.id}`} className="movie-card" onClick={() => openDetail({...item, media_type: 'tv'})}><img src={item.poster_path ? `https://image.tmdb.org/t/p/w200${item.poster_path}` : 'https://placehold.co/200x300/111/333?text=No+Poster'} /></div>)}
+                                                {loadingAllSeries && <div className="loading-indicator">Loading more series...</div>}
+                                                {!allSeriesHasMore && allSeries.length > 0 && <div className="empty-state">No more series</div>}
+                                            </div>
+                                        )}
                                     </div>
-                                </div>
-                            ))}
+                                )
+                            ) : query.length <= 2 ? (
+                                <div className="empty-state">Type at least 3 characters to search</div>
+                            ) : results.length === 0 && !isSearching ? (
+                                <div className="empty-state">No results found. Try another search or tap ➕</div>
+                            ) : (
+                                <>
+                                    <div className="search-results-grid">
+                                        {results.map(i => (
+                                            <div key={i.id} className="movie-card" onClick={() => openDetail(i)}>
+                                                <img src={i.poster_path ? `https://image.tmdb.org/t/p/w200${i.poster_path}` : 'https://placehold.co/200x300/111/333?text=No+Poster'} />
+                                            </div>
+                                        ))}
+                                    </div>
+                                    {isSearching && <div className="loading-indicator">Loading more results...</div>}
+                                    {!hasMoreSearch && results.length > 0 && <div className="empty-state">No more results</div>}
+                                </>
+                            )}
                         </div>
                     )}
 
                     {activeTab === 'watchlist' && (
                         <div className={viewWatchlist === 'grid' ? "grid fade-in" : "list fade-in"} ref={dragContainerRef}>
-                            {processedWatchlist.length === 0 && <div className="empty-state">WATCHLIST IS EMPTY</div>}
+                            {!processedWatchlist.length && <div className="empty-state">WATCHLIST IS EMPTY</div>}
                             {processedWatchlist.map(item => (viewWatchlist === 'grid' ? (
                                 <div key={item.id} className="movie-card" onClick={() => setEditingItem(item)}><img src={item.poster || item.displayPoster} /></div>
                             ) : (
                                 <div key={item.id} className="swipe-wrapper">
                                     <div className="list-actions"><div className="list-action action-seen" onClick={() => markAsSeen(item)}><i className="ph-bold ph-eye"></i></div><div className="list-action action-delete" onClick={() => deleteFromWatchlist(item)}><i className="ph-bold ph-trash"></i></div></div>
                                     <div className="list-item" onTouchStart={onSwipeTouchStart} onTouchMove={onSwipeTouchMove} onTouchEnd={onSwipeTouchEnd} onClick={(e) => { resetSwipe(e); setEditingItem(item); }}>
-                                        <img src={item.poster || item.displayPoster} className="list-poster" /><div className="list-info"><div className="list-title">{item.title || item.displayTitle}</div><div className="list-meta"><span className="meta-type">{item.type}</span> • {getYear(item)}</div></div>
+                                        <img src={item.poster || item.displayPoster} className="list-poster" /><div><div className="list-title">{item.title || item.displayTitle}</div><div className="list-meta"><span className="meta-type">{item.type}</span> • {getYear(item)}</div></div>
                                     </div>
                                 </div>
                             )))}
@@ -799,14 +1027,14 @@
 
                     {activeTab === 'upcoming' && (
                         <div className={viewUpcoming === 'grid' ? "grid fade-in" : "list fade-in"}>
-                            {processedUpcoming.length === 0 && <div className="upcoming-empty">NO UPCOMING TITLES</div>}
+                            {!processedUpcoming.length && <div className="upcoming-empty">NO UPCOMING TITLES</div>}
                             {processedUpcoming.map(item => (viewUpcoming === 'grid' ? (
                                 <div key={item.id} className="movie-card" onClick={() => openDetail(item, true, item, false)}><img src={item.displayPoster || item.poster} /></div>
                             ) : (
                                 <div key={item.id} className="swipe-wrapper">
-                                    <div className="list-actions" style={{width: '80px'}}><div className="list-action action-delete" onClick={() => deleteFromUpcoming(item)}><i className="ph-bold ph-trash"></i></div></div>
+                                    <div className="list-actions" style={{width:80}}><div className="list-action action-delete" onClick={() => deleteFromUpcoming(item)}><i className="ph-bold ph-trash"></i></div></div>
                                     <div className="upcoming-swipe-item" onTouchStart={onSwipeTouchStart} onTouchMove={onSwipeTouchMove} onTouchEnd={onSwipeTouchEnd} onClick={(e) => { resetSwipe(e); openDetail(item, true, item, false); }}>
-                                        <img src={item.displayPoster || item.poster} className="upcoming-poster" /><div className="result-info"><div style={{fontWeight:700}}>{item.displayTitle || item.title}</div><div className="upcoming-badge">⏳ Waiting for release</div><div className="result-meta">{item.media_type === 'movie' ? 'Movie' : 'TV Series'} {item.release_date || item.first_air_date ? `· ${getYear(item)}` : ''}</div></div>
+                                        <img src={item.displayPoster || item.poster} className="upcoming-poster" /><div><div style={{fontWeight:700}}>{item.displayTitle || item.title}</div><div className="upcoming-badge">⏳ Waiting for release</div><div className="result-meta">{item.media_type === 'movie' ? 'Movie' : 'TV Series'} {item.release_date || item.first_air_date ? `· ${getYear(item)}` : ''}</div></div>
                                     </div>
                                 </div>
                             )))}
@@ -815,44 +1043,56 @@
 
                     {activeTab === 'diary' && (
                         <div className={viewDiary === 'grid' ? "grid fade-in" : "list fade-in"}>
-                            {Object.keys(groupedDiary).length === 0 ? <div className="empty-state">DIARY IS EMPTY</div> : viewDiary === 'grid' ? (
-                                Object.keys(groupedDiary).map(monthKey => (<div key={monthKey} style={{gridColumn: '1/-1'}}><div className="section-header">{monthKey}</div><div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px'}}>{groupedDiary[monthKey].map(m => (<div key={m.historyId} className="movie-card" onClick={() => setRatingItem(m)}><img src={m.poster || m.displayPoster} /></div>))}</div></div>))
+                            {!Object.keys(groupedDiary).length ? <div className="empty-state">DIARY IS EMPTY</div> : viewDiary === 'grid' ? (
+                                Object.keys(groupedDiary).map(month => (<div key={month} style={{gridColumn:'1/-1'}}><div className="section-header">{month}</div><div style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8}}>{groupedDiary[month].map(m => (<div key={m.historyId} className="movie-card" onClick={() => setRatingItem(m)}><img src={m.poster || m.displayPoster} /></div>))}</div></div>))
                             ) : (
-                                Object.keys(groupedDiary).map(monthKey => (<div key={monthKey}><div className="section-header">{monthKey}</div>{groupedDiary[monthKey].map(m => (<div key={m.historyId} className="swipe-wrapper" style={{background:'#0d0d0d'}}><div className="diary-actions"><div className="diary-btn" style={{background: 'var(--info)'}} onClick={() => moveBackToWatchlist(m)}><i className="ph-bold ph-eye-slash"></i></div><div className="diary-btn" style={{background: 'var(--danger)'}} onClick={() => deleteFromDiary(m.historyId)}><i className="ph-bold ph-trash"></i></div></div><div className="diary-entry-wrapper" onTouchStart={onSwipeTouchStart} onTouchMove={onSwipeTouchMove} onTouchEnd={onSwipeTouchEnd}><div className="diary-entry" onClick={(e) => { resetSwipe(e); setRatingItem(m); }}><div className="entry-day">{m.day}</div><div className="entry-content"><div className="entry-title">{m.title || m.displayTitle}</div><div className="entry-rating">{"★".repeat(m.rating || 0)}<span style={{color:'#222'}}>{"★".repeat(5-(m.rating||0))}</span></div></div></div></div></div>))}</div>))
+                                Object.keys(groupedDiary).map(month => (<div key={month}><div className="section-header">{month}</div>{groupedDiary[month].map(m => (<div key={m.historyId} className="swipe-wrapper"><div className="diary-actions"><div className="diary-btn" style={{background: 'var(--info)'}} onClick={() => moveBackToWatchlist(m)}><i className="ph-bold ph-eye-slash"></i></div><div className="diary-btn" style={{background: 'var(--danger)'}} onClick={() => deleteFromDiary(m.historyId)}><i className="ph-bold ph-trash"></i></div></div><div className="diary-entry-wrapper" onTouchStart={onSwipeTouchStart} onTouchMove={onSwipeTouchMove} onTouchEnd={onSwipeTouchEnd}><div className="diary-entry" onClick={(e) => { resetSwipe(e); setRatingItem(m); }}><div className="entry-day">{m.day}</div><div><div className="entry-title">{m.title || m.displayTitle}</div><div className="entry-rating">{"★".repeat(m.rating || 0)}<span style={{color:'#222'}}>{"★".repeat(5-(m.rating||0))}</span></div></div></div></div></div>))}</div>))
                             )}
                         </div>
                     )}
                 </main>
 
                 <div className={`detail-panel ${selected ? 'open' : ''}`}>
-                    {selected && (<><div className="panel-header"><button className="close-btn" onClick={() => { setSelected(null); setIsEditingExisting(false); setIsManualAdd(false); }}><i className="ph ph-caret-down"></i></button></div>
-                    <div className="panel-content">
-                        <div className="media-header-row"><div style={{position:'relative', width:'110px', flexShrink:0}}><img src={customPoster || 'https://placehold.co/110x165/111/333?text=No+Poster'} className="panel-main-poster" /><button className="edit-overlay-btn" onClick={() => { const url = prompt("Paste image URL:"); if(url) setCustomPoster(url); }}><i className="ph ph-pencil-simple"></i></button></div>
-                        <div className="header-info-col"><div className="content-type-tag">{isManualAdd ? 'Movie' : (selected.media_type === 'movie' ? 'Movie' : 'TV Show')} | {isManualAdd ? '2025' : getYear(selected)}<label style={{marginLeft:'10px', color: isUpcomingManual ? 'var(--accent)' : 'var(--dim)', cursor:'pointer', display:'inline-flex', alignItems:'center', gap:'4px'}}><input type="checkbox" checked={isUpcomingManual} onChange={e => setIsUpcomingManual(e.target.checked)} style={{display:'none'}} /><i className={isUpcomingManual ? "ph-fill ph-clock" : "ph ph-clock"}></i>{isUpcomingManual ? 'UPCOMING' : 'SET UPCOMING'}</label></div>
-                        <input className="title-input-edit" value={customTitle} onChange={e => setCustomTitle(e.target.value)} placeholder="Title..." />
-                        {!isManualAdd && (<div className="credits-info"><b>Directed by</b><span>{meta.dir}</span><b>Cast</b><span>{meta.cast}</span>{meta.seasons && <><b>Seasons</b><span>{meta.seasons} {meta.seasons === 1 ? 'Season' : 'Seasons'}</span></>}</div>)}</div></div>
-                        {!isManualAdd && (<><div className="ratings-row"><div className="rating-box"><span className="imdb-tag">IMDb</span> {meta.imdb}</div><div className="rating-box"><svg className="rt-svg" viewBox="0 0 512 512"><path d="M435.5 130c-15.3-24.8-41-41.5-68.5-44.1l-10-1c1.1-5.1 2.5-10.2 4.1-15.1l7.6-23.4-24.6 3.2c-15.5 2-30.1 7.6-43 16.2-12.9-8.6-27.5-14.2-43-16.2l-24.6-3.2 7.6 23.4c1.6 4.9 3 10 4.1 15.1l-10 1c-27.5 2.6-53.2 19.3-68.5 44.1C117.4 154.1 112 186.2 112 219.7c0 101.4 82.2 183.6 183.6 183.6h.8c101.4 0 183.6-82.2 183.6-183.6 0-33.5-5.4-65.6-14.5-89.7z"/></svg>{meta.rt}</div><div className="rating-box"><i className="ph-fill ph-popcorn" style={{color:'var(--accent)',fontSize:'16px'}}></i> {meta.pop}</div><div className="rating-box"><i className="ph-fill ph-star" style={{color:'var(--yellow-icon)',fontSize:'14px'}}></i> {selected.vote_average ? selected.vote_average.toFixed(1) : '—'}</div></div>
-                        <div className="section-label">Overview</div><div className={`description ${isExpanded ? '' : 'collapsed'}`} onClick={() => setIsExpanded(!isExpanded)}>{selected.overview || "No description available."}</div></>)}
-                        <div className="section-label">Tags</div><div className="tags-container">{ALL_TAGS.map(tag => (<div key={tag} className={`tag-pill ${searchActiveTags.includes(tag) ? 'active' : ''}`} onClick={() => setSearchActiveTags(p => p.includes(tag) ? p.filter(t => t !== tag) : [...p, tag])}>{tag}</div>))}</div>
-                        <div className="section-label">Thoughts</div><textarea style={{width:'100%',background:'#0a0a0a',border:'1px solid #1a1a1a',borderRadius:'4px',padding:'15px',color:'#fff',minHeight:'80px',outline:'none',fontFamily:'Lato',fontSize:'14px'}} placeholder="Add some notes..." value={thoughts} onChange={e => setThoughts(e.target.value)} />
-                        <button className="save-btn" onClick={handleSave}>{isManualAdd ? '➕ ADD MANUAL' : (isEditingExisting ? '✏️ UPDATE' : (isUpcomingManual ? '⏳ Add to Upcoming' : '+ Add to Watchlist'))}</button>
-                    </div></>)}
+                    {selected && (
+                        <><div className="panel-header"><button className="close-btn" onClick={() => { setSelected(null); setIsEditingExisting(false); setIsManualAdd(false); setDetailError(false); }}><i className="ph ph-caret-down"></i></button></div>
+                        <div className="panel-content">
+                            {detailError ? (
+                                <div className="error-message">
+                                    <i className="ph-bold ph-warning" style={{fontSize:32, marginBottom:16}}></i>
+                                    <p>Could not load details for this title.</p>
+                                    <p style={{fontSize:12, marginTop:8}}>It may have been removed or is not available.</p>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="media-header-row"><div style={{position:'relative'}}><img src={customPoster || 'https://placehold.co/110x165/111/333?text=No+Poster'} className="panel-main-poster" /><button className="edit-overlay-btn" onClick={() => { const url = prompt("Paste image URL:"); if(url) setCustomPoster(url); }}><i className="ph ph-pencil-simple"></i></button></div>
+                                    <div><div className="content-type-tag">{isManualAdd ? 'Movie' : (selected.media_type === 'movie' ? 'Movie' : 'TV Show')} | {isManualAdd ? '2025' : getYear(selected)}<label style={{marginLeft:10, color: isUpcomingManual ? 'var(--accent)' : 'var(--dim)', display:'inline-flex', alignItems:'center', gap:4}}><input type="checkbox" checked={isUpcomingManual} onChange={e => setIsUpcomingManual(e.target.checked)} style={{display:'none'}} /><i className={isUpcomingManual ? "ph-fill ph-clock" : "ph ph-clock"}></i>{isUpcomingManual ? 'UPCOMING' : 'SET UPCOMING'}</label></div>
+                                    <input className="title-input-edit" value={customTitle} onChange={e => setCustomTitle(e.target.value)} placeholder="Title..." />
+                                    {!isManualAdd && (<div className="credits-info"><b>Directed by</b><span>{meta.dir}</span><b>Cast</b><span>{meta.cast}</span>{meta.seasons && <><b>Seasons</b><span>{meta.seasons} {meta.seasons === 1 ? 'Season' : 'Seasons'}</span></>}</div>)}</div></div>
+                                    {!isManualAdd && (<><div className="ratings-row"><div className="rating-box"><span className="imdb-tag">IMDb</span> {meta.imdb}</div><div className="rating-box"><svg className="rt-svg" viewBox="0 0 512 512"><path d="M435.5 130c-15.3-24.8-41-41.5-68.5-44.1l-10-1c1.1-5.1 2.5-10.2 4.1-15.1l7.6-23.4-24.6 3.2c-15.5 2-30.1 7.6-43 16.2-12.9-8.6-27.5-14.2-43-16.2l-24.6-3.2 7.6 23.4c1.6 4.9 3 10 4.1 15.1l-10 1c-27.5 2.6-53.2 19.3-68.5 44.1C117.4 154.1 112 186.2 112 219.7c0 101.4 82.2 183.6 183.6 183.6h.8c101.4 0 183.6-82.2 183.6-183.6 0-33.5-5.4-65.6-14.5-89.7z"/></svg>{meta.rt}</div><div className="rating-box"><i className="ph-fill ph-popcorn" style={{color:'var(--accent)',fontSize:16}}></i> {meta.pop}</div><div className="rating-box"><i className="ph-fill ph-star" style={{color:'var(--yellow-icon)',fontSize:14}}></i> {selected.vote_average ? selected.vote_average.toFixed(1) : '—'}</div></div>
+                                    <div className="section-label">Overview</div><div className={`description ${isExpanded ? '' : 'collapsed'}`} onClick={() => setIsExpanded(!isExpanded)}>{selected.overview || "No description available."}</div></>)}
+                                    <div className="section-label">Tags</div><div className="tags-container">{ALL_TAGS.map(tag => (<div key={tag} className={`tag-pill ${searchActiveTags.includes(tag) ? 'active' : ''}`} onClick={() => setSearchActiveTags(p => p.includes(tag) ? p.filter(t => t !== tag) : [...p, tag])}>{tag}</div>))}</div>
+                                    <div className="section-label">Thoughts</div><textarea style={{width:'100%',background:'#0a0a0a',border:'1px solid #1a1a1a',borderRadius:4,padding:15,color:'#fff',minHeight:80}} placeholder="Add some notes..." value={thoughts} onChange={e => setThoughts(e.target.value)} />
+                                    <button className="save-btn" onClick={handleSave}>{isManualAdd ? '➕ ADD MANUAL' : (isEditingExisting ? '✏️ UPDATE' : (isUpcomingManual ? '⏳ Add to Upcoming' : '+ Add to Watchlist'))}</button>
+                                </>
+                            )}
+                        </div></>
+                    )}
                 </div>
 
                 <nav className="nav">
-                    <button className={`nav-btn ${activeTab === 'watchlist' ? 'active' : ''}`} onClick={() => setActiveTab('watchlist')}><i className={activeTab === 'watchlist' ? "ph-fill ph-bookmark-simple" : "ph ph-bookmark-simple"} style={{fontSize:'24px'}}></i><span>Watchlist</span></button>
-                    <button className={`nav-btn ${activeTab === 'search' ? 'active' : ''}`} onClick={() => setActiveTab('search')}><i className={activeTab === 'search' ? "ph-fill ph-magnifying-glass" : "ph ph-magnifying-glass"} style={{fontSize:'24px'}}></i><span>Search</span></button>
-                    <button className={`nav-btn ${activeTab === 'upcoming' ? 'active' : ''}`} onClick={() => setActiveTab('upcoming')}><i className={activeTab === 'upcoming' ? "ph-fill ph-clock" : "ph ph-clock"} style={{fontSize:'24px'}}></i><span>Upcoming</span></button>
-                    <button className={`nav-btn ${activeTab === 'diary' ? 'active' : ''}`} onClick={() => setActiveTab('diary')}><i className={activeTab === 'diary' ? "ph-fill ph-calendar-blank" : "ph ph-calendar-blank"} style={{fontSize:'24px'}}></i><span>Diary</span></button>
+                    <button className={`nav-btn ${activeTab === 'watchlist' ? 'active' : ''}`} onClick={() => setActiveTab('watchlist')}><i className={activeTab === 'watchlist' ? "ph-fill ph-bookmark-simple" : "ph ph-bookmark-simple"} style={{fontSize:24}}></i><span>Watchlist</span></button>
+                    <button className={`nav-btn ${activeTab === 'search' ? 'active' : ''}`} onClick={handleSearchNavClick}><i className={activeTab === 'search' ? "ph-fill ph-magnifying-glass" : "ph ph-magnifying-glass"} style={{fontSize:24}}></i><span>Search</span></button>
+                    <button className={`nav-btn ${activeTab === 'upcoming' ? 'active' : ''}`} onClick={() => setActiveTab('upcoming')}><i className={activeTab === 'upcoming' ? "ph-fill ph-clock" : "ph ph-clock"} style={{fontSize:24}}></i><span>Upcoming</span></button>
+                    <button className={`nav-btn ${activeTab === 'diary' ? 'active' : ''}`} onClick={() => setActiveTab('diary')}><i className={activeTab === 'diary' ? "ph-fill ph-calendar-blank" : "ph ph-calendar-blank"} style={{fontSize:24}}></i><span>Diary</span></button>
                 </nav>
 
-                {editingItem && (<div className="drawer-overlay" onClick={() => setEditingItem(null)}><div className="drawer" onClick={e => e.stopPropagation()}><div className="drawer-header"><div className="drawer-title">{editingItem.title || editingItem.displayTitle}</div><div className="drawer-actions"><button className="icon-btn" onClick={() => { setRatingItem(editingItem); setEditingItem(null); }}><i className="ph-bold ph-eye" style={{fontSize:'20px'}}></i></button><button className="icon-btn" onClick={() => { setWatchlist(prev => prev.filter(i => i.id !== editingItem.id)); setEditingItem(null); }}><i className="ph-bold ph-trash" style={{fontSize:'20px'}}></i></button></div></div>
+                {editingItem && (<div className="drawer-overlay" onClick={() => setEditingItem(null)}><div className="drawer" onClick={e => e.stopPropagation()}><div className="drawer-header"><div className="drawer-title">{editingItem.title || editingItem.displayTitle}</div><div className="drawer-actions"><button className="icon-btn" onClick={() => { setRatingItem(editingItem); setEditingItem(null); }}><i className="ph-bold ph-eye" style={{fontSize:20}}></i></button><button className="icon-btn" onClick={() => { setWatchlist(p => p.filter(i => i.id !== editingItem.id)); setEditingItem(null); }}><i className="ph-bold ph-trash" style={{fontSize:20}}></i></button></div></div>
                 <div className="drawer-section"><div className="drawer-label">TYPE:</div><div className="option-row"><div className={`pill ${editingItem.type === 'movie' ? 'active' : ''}`} onClick={() => updateItemType('movie')}>MOVIE</div><div className={`pill ${editingItem.type === 'tv show' ? 'active' : ''}`} onClick={() => updateItemType('tv show')}>TV SHOW</div></div></div>
-                <div className="drawer-section"><div className="drawer-label">TAGS:</div><div className="option-row">{ALL_TAGS.map(t => (<div key={t} className={`pill ${editingItem.tags && editingItem.tags.includes(t.toLowerCase()) ? 'active' : ''}`} onClick={() => toggleTagInItem(t)}>{t}</div>))}</div></div>
+                <div className="drawer-section"><div className="drawer-label">TAGS:</div><div className="option-row">{ALL_TAGS.map(t => (<div key={t} className={`pill ${editingItem.tags?.includes(t.toLowerCase()) ? 'active' : ''}`} onClick={() => toggleTagInItem(t)}>{t}</div>))}</div></div>
                 <div className="drawer-section"><div className="drawer-label">NOTES:</div><textarea className="notes-area" rows="4" value={editingItem.notes || ""} onChange={e => updateNotes(e.target.value)} placeholder="Add thoughts..." /></div>
-                <button style={{width:'100%',padding:'16px',background:'none',border:'1px solid #333',borderRadius:'4px',color:'var(--accent)',fontWeight:'700',fontSize:'12px',letterSpacing:'1px',cursor:'pointer',marginTop:'10px'}} onClick={() => setEditingItem(null)}>SAVE CHANGES</button></div></div>)}
+                <button style={{width:'100%',padding:16,background:'none',border:'1px solid #333',borderRadius:4,color:'var(--accent)',fontWeight:700,fontSize:12,marginTop:10}} onClick={() => setEditingItem(null)}>SAVE CHANGES</button></div></div>)}
 
-                {ratingItem && (<div className="drawer-overlay" style={{alignItems:'center'}} onClick={() => setRatingItem(null)}><div className="drawer" style={{borderRadius:'16px',padding:'40px 20px',textAlign:'center'}} onClick={e => e.stopPropagation()}><div className="drawer-label">RATING</div><div className="drawer-title" style={{marginBottom:'10px'}}>{ratingItem.title || ratingItem.displayTitle}</div><div className="rating-stars">{[1,2,3,4,5].map(star => (<span key={star} className="star-btn" onClick={() => confirmRating(star)}><i className={star <= (ratingItem.rating || 0) ? "ph-fill ph-star" : "ph ph-star"}></i></span>))}</div><div style={{fontSize:'9px',color:'var(--dim)',textTransform:'uppercase',letterSpacing:'1px'}}>Tap a star to confirm</div></div></div>)}
+                {ratingItem && (<div className="drawer-overlay" style={{alignItems:'center'}} onClick={() => setRatingItem(null)}><div className="drawer" style={{borderRadius:16,padding:'40px 20px',textAlign:'center'}} onClick={e => e.stopPropagation()}><div className="drawer-label">RATING</div><div className="drawer-title" style={{marginBottom:10}}>{ratingItem.title || ratingItem.displayTitle}</div><div className="rating-stars">{[1,2,3,4,5].map(star => (<span key={star} className="star-btn" onClick={() => confirmRating(star)}><i className={star <= (ratingItem.rating || 0) ? "ph-fill ph-star" : "ph ph-star"}></i></span>))}</div><div style={{fontSize:9,color:'var(--dim)',textTransform:'uppercase',letterSpacing:1}}>Tap a star to confirm</div></div></div>)}
             </div>
         );
     }
