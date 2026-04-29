@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Peep</title>
     
-    <!-- Iconos para pantalla de inicio -->
     <link rel="apple-touch-icon" href="peep-app-icon.png">
     <link rel="icon" type="image/png" href="peep-app-icon.png">
     <link rel="shortcut icon" href="peep-app-icon.png">
@@ -45,11 +44,11 @@
         .icon-btn.active { color: var(--accent); }
         .sort-icon { display: flex; gap: 1px; font-size: 16px; font-weight: 700; letter-spacing: -1.5px; }
 
-        .panel { padding: 12px 20px; border-bottom: 1px solid #222; display: flex; gap: 10px; overflow-x: auto; background: var(--bg); scrollbar-width: none; flex-shrink: 0; }
+        .panel { padding: 12px 20px; border-bottom: 1px solid #222; display: flex; gap: 10px; overflow-x: auto; background: var(--bg); flex-shrink: 0; scrollbar-width: none; -ms-overflow-style: none; }
+        .panel::-webkit-scrollbar { display: none; }
         .pill { padding: 6px 12px; border: 1px solid #333; border-radius: 2px; font-size: 8px; font-weight: 700; color: var(--dim); white-space: nowrap; text-transform: uppercase; cursor: pointer; }
         .pill.active { border-color: var(--text); color: var(--text); background: #222; }
 
-        /* SEARCH HEADER con botón + dentro */
         .search-header { padding: 15px 20px; flex-shrink: 0; }
         .search-bar { background: #1a1a1a; border-radius: 8px; display: flex; align-items: center; padding: 12px 16px; gap: 12px; }
         .search-bar input { background: none; border: none; color: white; flex: 1; outline: none; font-size: 16px; }
@@ -57,8 +56,18 @@
         .search-add-btn { background: none; border: none; color: var(--accent); cursor: pointer; padding: 0; display: flex; align-items: center; font-size: 22px; font-weight: 700; }
         .search-add-btn i { font-size: 22px; }
 
-        /* CONTENT - SCROLL FIXED */
-        .content { flex: 1; overflow-y: auto; padding: 10px 20px 100px; -webkit-overflow-scrolling: touch; }
+        /* SCROLL OCULTO PERO FUNCIONAL */
+        .content { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 10px 20px 100px; 
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .content::-webkit-scrollbar {
+            display: none;
+        }
         
         .result-item { display: flex; align-items: center; gap: 15px; padding: 12px 0; border-bottom: 1px solid #1a1a1a; cursor: pointer; }
         .result-poster { width: 45px; aspect-ratio: 2/3; border-radius: 2px; object-fit: cover; background: #111; }
@@ -90,26 +99,44 @@
         .tag-pill.active { border-color: #fff; color: #fff; background: #1a1a1a; }
         .save-btn { width: 100%; padding: 18px; background: #fff; border: none; color: #000; font-weight: 900; text-transform: uppercase; border-radius: 4px; margin-top: 35px; cursor: pointer; letter-spacing: 1px; font-size: 13px; }
 
-        /* GRID & LIST */
         .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding-bottom: 20px; }
         .movie-card { aspect-ratio: 2/3; background: var(--card); border-radius: 2px; overflow: hidden; border: 1px solid #222; cursor: pointer; }
         .movie-card img { width: 100%; height: 100%; object-fit: cover; }
         
         .list { display: flex; flex-direction: column; gap: 1px; }
-        /* Contenedor relativo para el swipe, asegura que no se desborde horizontalmente */
-        .swipe-wrapper { position: relative; border-radius: 2px; overflow: visible; margin-bottom: 1px; background: #111; }
         
-        /* Actions laterales (swipe parcial) - Ahora con position absolute */
-        .list-actions { position: absolute; right: 0; top: 0; bottom: 0; display: flex; z-index: 1; width: 120px; }
+        .swipe-wrapper { 
+            position: relative; 
+            border-radius: 2px; 
+            overflow: visible; 
+            margin-bottom: 1px; 
+            background: #111;
+        }
+        
+        .list-actions { 
+            position: absolute; 
+            right: 0; 
+            top: 0; 
+            bottom: 0; 
+            display: flex; 
+            z-index: 1; 
+            width: 120px; 
+        }
         .list-action { flex: 1; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; }
         .action-seen { background: var(--success); }
         .action-delete { background: var(--danger); }
-        .action-unseen { background: var(--info); }
         
-        .diary-actions { position: absolute; right: 0; top: 0; bottom: 0; display: flex; z-index: 1; width: 120px; }
+        .diary-actions { 
+            position: absolute; 
+            right: 0; 
+            top: 0; 
+            bottom: 0; 
+            display: flex; 
+            z-index: 1; 
+            width: 120px; 
+        }
         .diary-btn { flex: 1; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; }
         
-        /* Item principal que se desliza, ahora con background y bordes redondeados para mejor efecto */
         .list-item, .diary-entry-wrapper, .upcoming-swipe-item { 
             display: flex; 
             align-items: center; 
@@ -119,16 +146,17 @@
             position: relative; 
             z-index: 2; 
             transition: transform 0.2s ease-out; 
-            touch-action: pan-x; 
             cursor: pointer;
+            width: 100%;
         }
+        
         .list-poster { width: 28px; aspect-ratio: 2/3; object-fit: cover; border-radius: 1px; }
         .list-info { flex: 1; display: flex; flex-direction: column; }
         .list-title { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
         .list-meta { font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--dim); }
         .meta-type { color: var(--accent); }
 
-        .upcoming-empty, .empty-state { text-align: center; color: #444; margin-top: 60px; font-size: 10px; letter-spacing: 1px; }
+        .upcoming-empty, .empty-state { text-align: center; color: #444; margin-top: 60px; font-size: 10px; letter-spacing: 1px; width: 100%; grid-column: 1 / -1; }
         .upcoming-poster { width: 45px; aspect-ratio: 2/3; border-radius: 2px; object-fit: cover; background: #111; }
         .upcoming-badge { font-size: 8px; font-weight: 900; letter-spacing: 1.5px; color: var(--accent); text-transform: uppercase; margin-top: 3px; }
 
@@ -147,7 +175,8 @@
         .drawer-actions { display: flex; gap: 20px; }
         .drawer-section { margin-bottom: 20px; }
         .drawer-label { color: var(--accent); font-size: 10px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
-        .option-row { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; }
+        .option-row { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
+        .option-row::-webkit-scrollbar { display: none; }
         .notes-area { width: 100%; background: #0d0d0d; border: 1px solid #333; border-radius: 4px; padding: 12px; color: white; font-family: 'Lato', sans-serif; font-size: 14px; resize: none; outline: none; }
         .rating-stars { display: flex; gap: 15px; justify-content: center; margin: 30px 0; }
         .star-btn { font-size: 32px; color: var(--accent); cursor: pointer; }
@@ -163,15 +192,9 @@
         .hidden-input { display: none; }
         .edit-overlay-btn { position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.7); border: 1px solid #444; border-radius: 50%; color: white; width: 26px; height: 26px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         
-        /* Fix: Asegurar que las acciones laterales no rompan el layout */
         .swipe-wrapper {
             overflow: hidden;
         }
-        .list-item, .diary-entry-wrapper, .upcoming-swipe-item {
-            width: 100%;
-            will-change: transform;
-        }
-        /* Mejor contraste para el contenido deslizable */
         .diary-entry-wrapper {
             background: #0d0d0d;
             padding: 0 8px;
@@ -202,7 +225,6 @@
         const [searchActiveTags, setSearchActiveTags] = useState([]);
         const [thoughts, setThoughts] = useState('');
         
-        // Views y filters
         const [viewWatchlist, setViewWatchlist] = useState('grid');
         const [viewUpcoming, setViewUpcoming] = useState('list');
         const [viewDiary, setViewDiary] = useState('list');
@@ -220,8 +242,12 @@
         const [history, setHistory] = useState([]);
         const dragContainerRef = useRef(null);
         const fileInputRef = useRef(null);
+        
+        // Refs para swipe tracking
+        const swipeStartX = useRef(0);
+        const swipeStartY = useRef(0);
+        const isSwiping = useRef(false);
 
-        // Load from localStorage
         useEffect(() => {
             const saved = localStorage.getItem('peep_watchlist_v2');
             if (saved) setWatchlist(JSON.parse(saved));
@@ -237,7 +263,6 @@
         useEffect(() => { localStorage.setItem('peep_upcoming_v2', JSON.stringify(upcoming)); }, [upcoming]);
         useEffect(() => { localStorage.setItem('peep_history_v2', JSON.stringify(history)); }, [history]);
 
-        // BACKUP FUNCTIONS
         const downloadBackup = () => {
             const backupData = {
                 watchlist: watchlist,
@@ -315,7 +340,6 @@
             URL.revokeObjectURL(url);
         };
 
-        // Check upcoming releases
         useEffect(() => {
             const today = new Date();
             let changed = false;
@@ -336,7 +360,6 @@
             }
         }, []);
 
-        // BÚSQUEDA MEJORADA: por título, director y actores
         useEffect(() => {
             const timer = setTimeout(() => { if (query.length > 2) fetchSearchEnhanced(); else if (query.length === 0) setResults([]); }, 500);
             return () => clearTimeout(timer);
@@ -607,23 +630,60 @@
             setEditingItem(prev => ({ ...prev, notes: newNotes }));
         };
 
-        // SWIPE FUNCTIONS
-        const onSwipeStart = (e) => { e.currentTarget.dataset.startX = e.touches[0].clientX; e.currentTarget.style.transition = 'none'; e.currentTarget.style.transform = 'translateX(0px)'; };
-        const onSwipeMove = (e) => {
-            const startX = parseFloat(e.currentTarget.dataset.startX);
-            if (isNaN(startX)) return;
-            const diff = e.touches[0].clientX - startX;
-            const moveX = Math.max(Math.min(diff, 0), -120);
-            e.currentTarget.style.transform = `translateX(${moveX}px)`;
+        // SWIPE FUNCTIONS MEJORADAS - Detectan dirección para no bloquear scroll
+        const onSwipeTouchStart = (e) => {
+            swipeStartX.current = e.touches[0].clientX;
+            swipeStartY.current = e.touches[0].clientY;
+            isSwiping.current = false;
+            const el = e.currentTarget;
+            el.style.transition = 'none';
+            el.style.transform = 'translateX(0px)';
         };
-        const onSwipeEnd = (e) => {
-            const transform = e.currentTarget.style.transform;
+
+        const onSwipeTouchMove = (e) => {
+            const diffX = e.touches[0].clientX - swipeStartX.current;
+            const diffY = Math.abs(e.touches[0].clientY - swipeStartY.current);
+            
+            // Si el movimiento es mayormente vertical (scroll), no interferir
+            if (diffY > Math.abs(diffX) && !isSwiping.current) {
+                return;
+            }
+            
+            // Si no se ha iniciado swipe y el movimiento horizontal es suficiente, iniciar swipe
+            if (!isSwiping.current && Math.abs(diffX) > 10) {
+                isSwiping.current = true;
+                e.preventDefault();
+            }
+            
+            if (isSwiping.current) {
+                e.preventDefault();
+                const moveX = Math.max(Math.min(diffX, 0), -120);
+                e.currentTarget.style.transform = `translateX(${moveX}px)`;
+            }
+        };
+
+        const onSwipeTouchEnd = (e) => {
+            const el = e.currentTarget;
+            const transform = el.style.transform;
             const diff = transform === 'none' ? 0 : parseFloat(transform.replace('translateX(', '').replace('px)', '')) || 0;
-            e.currentTarget.style.transition = 'transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28)';
-            if (diff < -60) e.currentTarget.style.transform = 'translateX(-120px)';
-            else e.currentTarget.style.transform = 'translateX(0px)';
+            el.style.transition = 'transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28)';
+            
+            if (diff < -60) {
+                el.style.transform = 'translateX(-120px)';
+            } else {
+                el.style.transform = 'translateX(0px)';
+            }
+            
+            isSwiping.current = false;
         };
-        const resetSwipe = (e) => { if (e.currentTarget) { e.currentTarget.style.transform = 'translateX(0px)'; e.currentTarget.style.transition = 'transform 0.3s ease-out'; } };
+
+        const resetSwipe = (e) => { 
+            if (e.currentTarget) { 
+                e.currentTarget.style.transform = 'translateX(0px)'; 
+                e.currentTarget.style.transition = 'transform 0.3s ease-out'; 
+            } 
+        };
+        
         const deleteFromWatchlist = (item) => setWatchlist(prev => prev.filter(i => i.id !== item.id));
         const markAsSeen = (item) => setRatingItem(item);
         const deleteFromUpcoming = (item) => setUpcoming(prev => prev.filter(i => i.id !== item.id));
@@ -638,7 +698,6 @@
             <div className="app-container">
                 <header className="header"><img src="peep-logo.png" className="logo" alt="Peep" /></header>
 
-                {/* WATCHLIST TOOLBAR */}
                 {activeTab === 'watchlist' && (
                     <div className="toolbar">
                         <div className="tabs">
@@ -654,7 +713,6 @@
                     </div>
                 )}
 
-                {/* UPCOMING TOOLBAR */}
                 {activeTab === 'upcoming' && (
                     <div className="toolbar">
                         <div className="tabs">
@@ -667,7 +725,6 @@
                     </div>
                 )}
 
-                {/* DIARY TOOLBAR */}
                 {activeTab === 'diary' && (
                     <div className="toolbar">
                         <div className="tabs">
@@ -696,7 +753,6 @@
                     </div>
                 )}
 
-                {/* SEARCH HEADER con botón + dentro */}
                 {activeTab === 'search' && (
                     <div className="search-header">
                         <div className="search-bar">
@@ -709,7 +765,6 @@
                     </div>
                 )}
 
-                {/* MAIN CONTENT */}
                 <main className="content">
                     {activeTab === 'search' && (
                         <div className="fade-in">
@@ -726,7 +781,6 @@
                         </div>
                     )}
 
-                    {/* WATCHLIST */}
                     {activeTab === 'watchlist' && (
                         <div className={viewWatchlist === 'grid' ? "grid fade-in" : "list fade-in"} ref={dragContainerRef}>
                             {processedWatchlist.length === 0 && <div className="empty-state">WATCHLIST IS EMPTY</div>}
@@ -735,7 +789,7 @@
                             ) : (
                                 <div key={item.id} className="swipe-wrapper">
                                     <div className="list-actions"><div className="list-action action-seen" onClick={() => markAsSeen(item)}><i className="ph-bold ph-eye"></i></div><div className="list-action action-delete" onClick={() => deleteFromWatchlist(item)}><i className="ph-bold ph-trash"></i></div></div>
-                                    <div className="list-item" onTouchStart={onSwipeStart} onTouchMove={onSwipeMove} onTouchEnd={onSwipeEnd} onClick={(e) => { resetSwipe(e); setEditingItem(item); }}>
+                                    <div className="list-item" onTouchStart={onSwipeTouchStart} onTouchMove={onSwipeTouchMove} onTouchEnd={onSwipeTouchEnd} onClick={(e) => { resetSwipe(e); setEditingItem(item); }}>
                                         <img src={item.poster || item.displayPoster} className="list-poster" /><div className="list-info"><div className="list-title">{item.title || item.displayTitle}</div><div className="list-meta"><span className="meta-type">{item.type}</span> • {getYear(item)}</div></div>
                                     </div>
                                 </div>
@@ -743,7 +797,6 @@
                         </div>
                     )}
 
-                    {/* UPCOMING */}
                     {activeTab === 'upcoming' && (
                         <div className={viewUpcoming === 'grid' ? "grid fade-in" : "list fade-in"}>
                             {processedUpcoming.length === 0 && <div className="upcoming-empty">NO UPCOMING TITLES</div>}
@@ -752,7 +805,7 @@
                             ) : (
                                 <div key={item.id} className="swipe-wrapper">
                                     <div className="list-actions" style={{width: '80px'}}><div className="list-action action-delete" onClick={() => deleteFromUpcoming(item)}><i className="ph-bold ph-trash"></i></div></div>
-                                    <div className="upcoming-swipe-item" onTouchStart={onSwipeStart} onTouchMove={onSwipeMove} onTouchEnd={onSwipeEnd} onClick={(e) => { resetSwipe(e); openDetail(item, true, item, false); }}>
+                                    <div className="upcoming-swipe-item" onTouchStart={onSwipeTouchStart} onTouchMove={onSwipeTouchMove} onTouchEnd={onSwipeTouchEnd} onClick={(e) => { resetSwipe(e); openDetail(item, true, item, false); }}>
                                         <img src={item.displayPoster || item.poster} className="upcoming-poster" /><div className="result-info"><div style={{fontWeight:700}}>{item.displayTitle || item.title}</div><div className="upcoming-badge">⏳ Waiting for release</div><div className="result-meta">{item.media_type === 'movie' ? 'Movie' : 'TV Series'} {item.release_date || item.first_air_date ? `· ${getYear(item)}` : ''}</div></div>
                                     </div>
                                 </div>
@@ -760,19 +813,17 @@
                         </div>
                     )}
 
-                    {/* DIARY */}
                     {activeTab === 'diary' && (
                         <div className={viewDiary === 'grid' ? "grid fade-in" : "list fade-in"}>
                             {Object.keys(groupedDiary).length === 0 ? <div className="empty-state">DIARY IS EMPTY</div> : viewDiary === 'grid' ? (
                                 Object.keys(groupedDiary).map(monthKey => (<div key={monthKey} style={{gridColumn: '1/-1'}}><div className="section-header">{monthKey}</div><div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px'}}>{groupedDiary[monthKey].map(m => (<div key={m.historyId} className="movie-card" onClick={() => setRatingItem(m)}><img src={m.poster || m.displayPoster} /></div>))}</div></div>))
                             ) : (
-                                Object.keys(groupedDiary).map(monthKey => (<div key={monthKey}><div className="section-header">{monthKey}</div>{groupedDiary[monthKey].map(m => (<div key={m.historyId} className="swipe-wrapper" style={{background:'#0d0d0d'}}><div className="diary-actions"><div className="diary-btn" style={{background: 'var(--info)'}} onClick={() => moveBackToWatchlist(m)}><i className="ph-bold ph-eye-slash"></i></div><div className="diary-btn" style={{background: 'var(--danger)'}} onClick={() => deleteFromDiary(m.historyId)}><i className="ph-bold ph-trash"></i></div></div><div className="diary-entry-wrapper" onTouchStart={onSwipeStart} onTouchMove={onSwipeMove} onTouchEnd={onSwipeEnd}><div className="diary-entry" onClick={(e) => { resetSwipe(e); setRatingItem(m); }}><div className="entry-day">{m.day}</div><div className="entry-content"><div className="entry-title">{m.title || m.displayTitle}</div><div className="entry-rating">{"★".repeat(m.rating || 0)}<span style={{color:'#222'}}>{"★".repeat(5-(m.rating||0))}</span></div></div></div></div></div>))}</div>))
+                                Object.keys(groupedDiary).map(monthKey => (<div key={monthKey}><div className="section-header">{monthKey}</div>{groupedDiary[monthKey].map(m => (<div key={m.historyId} className="swipe-wrapper" style={{background:'#0d0d0d'}}><div className="diary-actions"><div className="diary-btn" style={{background: 'var(--info)'}} onClick={() => moveBackToWatchlist(m)}><i className="ph-bold ph-eye-slash"></i></div><div className="diary-btn" style={{background: 'var(--danger)'}} onClick={() => deleteFromDiary(m.historyId)}><i className="ph-bold ph-trash"></i></div></div><div className="diary-entry-wrapper" onTouchStart={onSwipeTouchStart} onTouchMove={onSwipeTouchMove} onTouchEnd={onSwipeTouchEnd}><div className="diary-entry" onClick={(e) => { resetSwipe(e); setRatingItem(m); }}><div className="entry-day">{m.day}</div><div className="entry-content"><div className="entry-title">{m.title || m.displayTitle}</div><div className="entry-rating">{"★".repeat(m.rating || 0)}<span style={{color:'#222'}}>{"★".repeat(5-(m.rating||0))}</span></div></div></div></div></div>))}</div>))
                             )}
                         </div>
                     )}
                 </main>
 
-                {/* DETAIL PANEL */}
                 <div className={`detail-panel ${selected ? 'open' : ''}`}>
                     {selected && (<><div className="panel-header"><button className="close-btn" onClick={() => { setSelected(null); setIsEditingExisting(false); setIsManualAdd(false); }}><i className="ph ph-caret-down"></i></button></div>
                     <div className="panel-content">
@@ -788,7 +839,6 @@
                     </div></>)}
                 </div>
 
-                {/* NAV */}
                 <nav className="nav">
                     <button className={`nav-btn ${activeTab === 'watchlist' ? 'active' : ''}`} onClick={() => setActiveTab('watchlist')}><i className={activeTab === 'watchlist' ? "ph-fill ph-bookmark-simple" : "ph ph-bookmark-simple"} style={{fontSize:'24px'}}></i><span>Watchlist</span></button>
                     <button className={`nav-btn ${activeTab === 'search' ? 'active' : ''}`} onClick={() => setActiveTab('search')}><i className={activeTab === 'search' ? "ph-fill ph-magnifying-glass" : "ph ph-magnifying-glass"} style={{fontSize:'24px'}}></i><span>Search</span></button>
@@ -796,14 +846,12 @@
                     <button className={`nav-btn ${activeTab === 'diary' ? 'active' : ''}`} onClick={() => setActiveTab('diary')}><i className={activeTab === 'diary' ? "ph-fill ph-calendar-blank" : "ph ph-calendar-blank"} style={{fontSize:'24px'}}></i><span>Diary</span></button>
                 </nav>
 
-                {/* EDIT DRAWER */}
                 {editingItem && (<div className="drawer-overlay" onClick={() => setEditingItem(null)}><div className="drawer" onClick={e => e.stopPropagation()}><div className="drawer-header"><div className="drawer-title">{editingItem.title || editingItem.displayTitle}</div><div className="drawer-actions"><button className="icon-btn" onClick={() => { setRatingItem(editingItem); setEditingItem(null); }}><i className="ph-bold ph-eye" style={{fontSize:'20px'}}></i></button><button className="icon-btn" onClick={() => { setWatchlist(prev => prev.filter(i => i.id !== editingItem.id)); setEditingItem(null); }}><i className="ph-bold ph-trash" style={{fontSize:'20px'}}></i></button></div></div>
                 <div className="drawer-section"><div className="drawer-label">TYPE:</div><div className="option-row"><div className={`pill ${editingItem.type === 'movie' ? 'active' : ''}`} onClick={() => updateItemType('movie')}>MOVIE</div><div className={`pill ${editingItem.type === 'tv show' ? 'active' : ''}`} onClick={() => updateItemType('tv show')}>TV SHOW</div></div></div>
                 <div className="drawer-section"><div className="drawer-label">TAGS:</div><div className="option-row">{ALL_TAGS.map(t => (<div key={t} className={`pill ${editingItem.tags && editingItem.tags.includes(t.toLowerCase()) ? 'active' : ''}`} onClick={() => toggleTagInItem(t)}>{t}</div>))}</div></div>
                 <div className="drawer-section"><div className="drawer-label">NOTES:</div><textarea className="notes-area" rows="4" value={editingItem.notes || ""} onChange={e => updateNotes(e.target.value)} placeholder="Add thoughts..." /></div>
                 <button style={{width:'100%',padding:'16px',background:'none',border:'1px solid #333',borderRadius:'4px',color:'var(--accent)',fontWeight:'700',fontSize:'12px',letterSpacing:'1px',cursor:'pointer',marginTop:'10px'}} onClick={() => setEditingItem(null)}>SAVE CHANGES</button></div></div>)}
 
-                {/* RATING MODAL */}
                 {ratingItem && (<div className="drawer-overlay" style={{alignItems:'center'}} onClick={() => setRatingItem(null)}><div className="drawer" style={{borderRadius:'16px',padding:'40px 20px',textAlign:'center'}} onClick={e => e.stopPropagation()}><div className="drawer-label">RATING</div><div className="drawer-title" style={{marginBottom:'10px'}}>{ratingItem.title || ratingItem.displayTitle}</div><div className="rating-stars">{[1,2,3,4,5].map(star => (<span key={star} className="star-btn" onClick={() => confirmRating(star)}><i className={star <= (ratingItem.rating || 0) ? "ph-fill ph-star" : "ph ph-star"}></i></span>))}</div><div style={{fontSize:'9px',color:'var(--dim)',textTransform:'uppercase',letterSpacing:'1px'}}>Tap a star to confirm</div></div></div>)}
             </div>
         );
